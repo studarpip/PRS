@@ -1,7 +1,5 @@
 ﻿using Neo4j.Driver;
-using PRS.Server.Migrations.Seeders;
-
-namespace PRS.Server.Migrations;
+using PRS.Server.Migrations.Seeders.Interfaces;
 
 public class SeederRunner
 {
@@ -16,9 +14,26 @@ public class SeederRunner
 
     public async Task RunAllAsync()
     {
-        foreach (var seeder in _seeders)
+        await using var session = _driver.AsyncSession();
+        var tx = await session.BeginTransactionAsync();
+
+        try
         {
-            await seeder.SeedAsync(_driver);
+            foreach (var seeder in _seeders)
+            {
+                await seeder.SeedAsync(tx);
+            }
+
+            await tx.CommitAsync();
+        }
+        catch
+        {
+            await tx.RollbackAsync();
+            throw;
+        }
+        finally
+        {
+            await session.CloseAsync();
         }
     }
 }

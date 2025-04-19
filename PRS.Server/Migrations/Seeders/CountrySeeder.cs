@@ -1,43 +1,32 @@
 ﻿using Neo4j.Driver;
 using PRS.Model.Enums;
+using PRS.Server.Helpers;
+using PRS.Server.Migrations.Seeders.Interfaces;
 
-namespace PRS.Server.Migrations.Seeders;
-
-public class CountrySeeder : IDatabaseSeeder
+namespace PRS.Server.Migrations.Seeders
 {
-    public async Task SeedAsync(IDriver driver)
+    public class CountrySeeder : IDatabaseSeeder
     {
-        var session = driver.AsyncSession();
-
-        try
+        public async Task SeedAsync(IAsyncTransaction tx)
         {
             var existing = new HashSet<string>();
 
-            var result = await session.RunAsync("MATCH (c:Country) RETURN c.name AS name");
+            var result = await tx.RunAsync("MATCH (c:Country) RETURN c.name AS name");
 
             await result.ForEachAsync(record =>
             {
-                var name = record["name"].As<string>();
-                existing.Add(name);
+                existing.Add(record["name"].As<string>());
             });
 
-            var allEnumValues = Enum.GetValues<Country>();
-
-            foreach (var country in allEnumValues)
+            foreach (var country in Enum.GetValues<Country>())
             {
-                var countryName = country.ToString();
-                if (existing.Contains(countryName)) 
+                var name = country.ToString();
+
+                if (country.ShouldSkipRelationship() || existing.Contains(name))
                     continue;
 
-                var cypher = "MERGE (:Country { name: $name })";
-                var parameters = new Dictionary<string, object> { { "name", countryName } };
-
-                await session.RunAsync(cypher, parameters);
+                await tx.RunAsync("MERGE (:Country { name: $name })", new { name });
             }
-        }
-        finally
-        {
-            await session.CloseAsync();
         }
     }
 }

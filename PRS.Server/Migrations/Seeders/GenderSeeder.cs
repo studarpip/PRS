@@ -1,43 +1,32 @@
 ﻿using Neo4j.Driver;
 using PRS.Model.Enums;
+using PRS.Server.Helpers;
+using PRS.Server.Migrations.Seeders.Interfaces;
 
-namespace PRS.Server.Migrations.Seeders;
-
-public class GenderSeeder : IDatabaseSeeder
+namespace PRS.Server.Migrations.Seeders
 {
-    public async Task SeedAsync(IDriver driver)
+    public class GenderSeeder : IDatabaseSeeder
     {
-        var session = driver.AsyncSession();
-
-        try
+        public async Task SeedAsync(IAsyncTransaction tx)
         {
             var existing = new HashSet<string>();
 
-            var result = await session.RunAsync("MATCH (g:Gender) RETURN g.name AS name");
+            var result = await tx.RunAsync("MATCH (g:Gender) RETURN g.name AS name");
 
             await result.ForEachAsync(record =>
             {
-                var name = record["name"].As<string>();
-                existing.Add(name);
+                existing.Add(record["name"].As<string>());
             });
 
-            var allEnumValues = Enum.GetValues<Gender>();
-
-            foreach (var gender in allEnumValues)
+            foreach (var gender in Enum.GetValues<Gender>())
             {
                 var genderName = gender.ToString();
-                if (existing.Contains(genderName)) 
+
+                if (gender.ShouldSkipRelationship() || existing.Contains(genderName))
                     continue;
 
-                var cypher = "MERGE (:Gender { name: $name })";
-                var parameters = new Dictionary<string, object> { { "name", genderName } };
-
-                await session.RunAsync(cypher, parameters);
+                await tx.RunAsync("MERGE (:Gender { name: $name })", new { name = genderName });
             }
-        }
-        finally
-        {
-            await session.CloseAsync();
         }
     }
 }
