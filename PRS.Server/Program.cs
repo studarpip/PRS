@@ -1,12 +1,16 @@
 
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Neo4j.Driver;
+using PRS.Server.Helpers.Interfaces;
+using PRS.Server.Helpers;
+using PRS.Server.Migrations;
+using PRS.Server.Migrations.Seeders;
 
 namespace PRS.Server
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddControllers();
@@ -28,7 +32,7 @@ namespace PRS.Server
                     options.Cookie.HttpOnly = true;
                     options.Cookie.SameSite = SameSiteMode.Lax;
                     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                    options.ExpireTimeSpan = TimeSpan.FromMinutes(1);
+                    options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
                     options.SlidingExpiration = true;
 
                     options.Events = new CookieAuthenticationEvents
@@ -48,7 +52,19 @@ namespace PRS.Server
 
             builder.Services.AddAuthorization();
 
+            builder.Services.AddScoped<IDatabaseSeeder, GenderSeeder>();
+            builder.Services.AddScoped<IDatabaseSeeder, CountrySeeder>();
+            builder.Services.AddScoped<SeederRunner>();
+            builder.Services.AddSingleton<IEncryptionHelper, EncryptionHelper>();
+
+
             var app = builder.Build();
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var seederRunner = scope.ServiceProvider.GetRequiredService<SeederRunner>();
+                await seederRunner.RunAllAsync();
+            }
 
             if (app.Environment.IsDevelopment())
             {
