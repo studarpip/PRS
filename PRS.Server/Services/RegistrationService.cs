@@ -1,8 +1,8 @@
 ﻿using PRS.Model.Entities;
 using PRS.Model.Enums;
+using PRS.Model.Exceptions;
 using PRS.Model.Requests;
 using PRS.Model.Responses;
-using PRS.Model.Exceptions;
 using PRS.Server.Helpers;
 using PRS.Server.Helpers.Interfaces;
 using PRS.Server.Repositories.Interfaces;

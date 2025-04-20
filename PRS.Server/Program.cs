@@ -1,16 +1,15 @@
 
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Neo4j.Driver;
-using PRS.Server.Helpers.Interfaces;
 using PRS.Server.Helpers;
-using PRS.Server.Migrations;
-using PRS.Server.Migrations.Seeders;
-using PRS.Server.Repositories.Interfaces;
-using PRS.Server.Repositories;
-using PRS.Server.Services.Interfaces;
-using PRS.Server.Services;
+using PRS.Server.Helpers.Interfaces;
 using PRS.Server.Middleware;
+using PRS.Server.Migrations.Seeders;
 using PRS.Server.Migrations.Seeders.Interfaces;
+using PRS.Server.Repositories;
+using PRS.Server.Repositories.Interfaces;
+using PRS.Server.Services;
+using PRS.Server.Services.Interfaces;
 
 namespace PRS.Server
 {
@@ -65,6 +64,8 @@ namespace PRS.Server
             builder.Services.AddSingleton<IEncryptionHelper, EncryptionHelper>();
             builder.Services.AddScoped<IRegistrationService, RegistrationService>();
             builder.Services.AddScoped<IRegistrationRepository, RegistrationRepository>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 
 
             var app = builder.Build();
