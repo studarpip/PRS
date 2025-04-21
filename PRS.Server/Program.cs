@@ -66,6 +66,8 @@ namespace PRS.Server
             builder.Services.AddScoped<IRegistrationRepository, RegistrationRepository>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+            builder.Services.AddScoped<IItemService, ItemService>();
+            builder.Services.AddScoped<IItemRepository, ItemRepository>();
 
 
             var app = builder.Build();
