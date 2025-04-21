@@ -9,5 +9,6 @@ namespace PRS.Model.Enums
         Lithuania = 1,
         Latvia = 2,
         Estonia = 3,
+        Other = 4,
     }
 }

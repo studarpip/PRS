@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import Welcome from "./pages/Welcome";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import Registration from "./pages/Registration";
 import Admin from "./pages/Admin";
 import Unauthorized from "./pages/Unauthorized";
 import NotFound from "./pages/NotFound";
@@ -74,6 +75,7 @@ function App() {
           <Route path="/" element={user ? <Navigate to="/home" /> : <Welcome />} />
           <Route path="/home" element={user ? <Home /> : <Navigate to="/login" />} />
           <Route path="/login" element={<Login onLogin={handleLogin} user={user} />} />
+          <Route path="/register" element={<Registration user={user} />} />
           <Route path="/admin" element={isAdmin(user) ? <Admin /> : <Navigate to="/unauthorized" />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="*" element={<NotFound />} />

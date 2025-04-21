@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { isAdmin } from "../api/auth";
 
 function Login({ onLogin, user }) {
@@ -20,7 +20,6 @@ function Login({ onLogin, user }) {
             alert("Login failed");
             return;
         }
-        ;
         navigate(isAdmin(user) ? "/admin" : "/");
     };
 
@@ -50,6 +49,10 @@ function Login({ onLogin, user }) {
                     Login
                 </button>
             </form>
+
+            <div style={{ marginTop: "20px" }}>
+                <p>Don't have an account? <Link to="/register">Register</Link></p>
+            </div>
         </div>
     );
 }
