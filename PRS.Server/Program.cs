@@ -60,14 +60,15 @@ namespace PRS.Server
             builder.Services.AddScoped<IDatabaseSeeder, GenderSeeder>();
             builder.Services.AddScoped<IDatabaseSeeder, CountrySeeder>();
             builder.Services.AddScoped<IDatabaseSeeder, AdminSeeder>();
+            builder.Services.AddScoped<IDatabaseSeeder, CategorySeeder>();
             builder.Services.AddScoped<SeederRunner>();
             builder.Services.AddSingleton<IEncryptionHelper, EncryptionHelper>();
             builder.Services.AddScoped<IRegistrationService, RegistrationService>();
             builder.Services.AddScoped<IRegistrationRepository, RegistrationRepository>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IAuthRepository, AuthRepository>();
-            builder.Services.AddScoped<IItemService, ItemService>();
-            builder.Services.AddScoped<IItemRepository, ItemRepository>();
+            builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 
             var app = builder.Build();

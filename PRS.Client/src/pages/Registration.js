@@ -22,7 +22,7 @@ function Registration({ user }) {
   }, [user, navigate]);
 
   useEffect(() => {
-    axios.get("/api/register/options")
+    axios.get("/api/options/registrationOptions")
       .then(res => {
         const raw = res.data.data;
         setOptions({

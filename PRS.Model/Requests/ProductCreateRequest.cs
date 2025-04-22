@@ -1,10 +1,9 @@
 ﻿using PRS.Model.Enums;
 
-namespace PRS.Model.Entities
+namespace PRS.Model.Requests
 {
-    public class Product
+    public class ProductCreateRequest
     {
-        public Guid Id { get; set; }
         public required string Name { get; set; }
         public string? Description { get; set; }
         public List<Category> Categories { get; set; } = new();

@@ -29,27 +29,5 @@ namespace PRS.Server.Controllers
 
             return Ok(response);
         }
-
-        [HttpGet("options")]
-        public ActionResult<ServerResponse<RegistrationOptionsResponse>> GetOptions()
-        {
-            var genders = Enum.GetValues<Gender>()
-                .Where(g => !g.ShouldSkipRelationship())
-                .Select(g => new EnumOption { Value = (int)g, Label = g.ToString() })
-                .ToList();
-
-            var countries = Enum.GetValues<Country>()
-                .Where(c => !c.ShouldSkipRelationship())
-                .Select(c => new EnumOption { Value = (int)c, Label = c.ToString() })
-                .ToList();
-
-            var response = new RegistrationOptionsResponse
-            {
-                Genders = genders,
-                Countries = countries
-            };
-
-            return Ok(ServerResponse<RegistrationOptionsResponse>.Ok(response));
-        }
     }
 }
