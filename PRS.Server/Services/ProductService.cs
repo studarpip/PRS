@@ -1,4 +1,5 @@
 ﻿using PRS.Model.Entities;
+using PRS.Model.Exceptions;
 using PRS.Model.Requests;
 using PRS.Model.Responses;
 using PRS.Server.Repositories.Interfaces;
@@ -15,13 +16,28 @@ namespace PRS.Server.Services
             _repository = repository;
         }
 
+        public async Task<ServerResponse<Product>> GetByIdAsync(Guid id)
+        {
+            var product = await _repository.GetByIdAsync(id);
+            if (product == null)
+                throw new ProductNotFoundException();
+
+            return ServerResponse<Product>.Ok(product);
+        }
+
+        public async Task<ServerResponse<List<Product>>> SearchAsync(ProductSearchRequest request)
+        {
+            var products = await _repository.SearchAsync(request);
+            return ServerResponse<List<Product>>.Ok(products);
+        }
+
         public async Task<ServerResponse<List<Product>>> GetAllAsync()
         {
             var products = await _repository.GetAllAsync();
             return ServerResponse<List<Product>>.Ok(products);
         }
 
-        public async Task<ServerResponse> CreateAsync(ProductCreateRequest request)
+        public async Task<ServerResponse> CreateAsync(ProductCreateEditRequest request)
         {
             var product = new Product
             {
@@ -29,14 +45,15 @@ namespace PRS.Server.Services
                 Name = request.Name,
                 Description = request.Description,
                 Image = request.Image,
-                Categories = request.Categories
+                Categories = request.Categories,
+                Price = request.Price,
             };
 
             await _repository.CreateAsync(product);
             return ServerResponse.Ok();
         }
 
-        public async Task<ServerResponse> UpdateAsync(Guid id, ProductEditRequest request)
+        public async Task<ServerResponse> UpdateAsync(Guid id, ProductCreateEditRequest request)
         {
             var product = new Product
             {
@@ -44,7 +61,8 @@ namespace PRS.Server.Services
                 Name = request.Name,
                 Description = request.Description,
                 Image = request.Image,
-                Categories = request.Categories
+                Categories = request.Categories,
+                Price= request.Price,
             };
 
             await _repository.UpdateAsync(product);

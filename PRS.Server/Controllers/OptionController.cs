@@ -11,8 +11,20 @@ namespace PRS.Server.Controllers
     {
         [ApiController]
         [Route("api/options")]
-        public class OptionsController : ControllerBase
+        public class OptionController : ControllerBase
         {
+            [Authorize]
+            [HttpGet("orderBy")]
+            public ActionResult<ServerResponse<List<EnumOption>>> GetOrderBy()
+            {
+                var orderByOptions = Enum.GetValues<ProductOrderBy>()
+                    .Where(c => !c.ShouldSkipRelationship())
+                    .Select(c => new EnumOption { Value = (int)c, Label = c.ToString() })
+                    .ToList();
+
+                return Ok(ServerResponse<List<EnumOption>>.Ok(orderByOptions));
+            }
+
             [Authorize]
             [HttpGet("categories")]
             public ActionResult<ServerResponse<List<EnumOption>>> GetCategories()

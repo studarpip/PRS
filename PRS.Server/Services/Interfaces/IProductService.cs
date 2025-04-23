@@ -7,8 +7,10 @@ namespace PRS.Server.Services.Interfaces
     public interface IProductService
     {
         Task<ServerResponse<List<Product>>> GetAllAsync();
-        Task<ServerResponse> CreateAsync(ProductCreateRequest request);
-        Task<ServerResponse> UpdateAsync(Guid id, ProductEditRequest request);
+        Task<ServerResponse<Product>> GetByIdAsync(Guid id);
+        Task<ServerResponse<List<Product>>> SearchAsync(ProductSearchRequest request);
+        Task<ServerResponse> CreateAsync(ProductCreateEditRequest request);
+        Task<ServerResponse> UpdateAsync(Guid id, ProductCreateEditRequest request);
         Task<ServerResponse> DeleteAsync(Guid id);
     }
 }

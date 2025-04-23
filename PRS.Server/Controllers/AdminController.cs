@@ -27,7 +27,7 @@ namespace PRS.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ServerResponse>> Create([FromBody] ProductCreateRequest request)
+        public async Task<ActionResult<ServerResponse>> Create([FromBody] ProductCreateEditRequest request)
         {
             var response = await _productService.CreateAsync(request);
             if (!response.Success)
@@ -37,7 +37,7 @@ namespace PRS.Server.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<ServerResponse>> Edit(Guid id, [FromBody] ProductEditRequest request)
+        public async Task<ActionResult<ServerResponse>> Edit(Guid id, [FromBody] ProductCreateEditRequest request)
         {
             var response = await _productService.UpdateAsync(id, request);
             if (!response.Success)
