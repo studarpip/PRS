@@ -1,31 +1,30 @@
 .notfound-page {
-    text-align: center;
-    padding: 60px 20px;
-  }
-  
-  .notfound-page h2 {
-    font-size: 32px;
-    margin-bottom: 20px;
-  }
-  
-  .notfound-page p {
-    font-size: 18px;
-    margin-bottom: 30px;
-    color: #666;
-  }
-  
-  .notfound-back-home-link {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #007185;
-    color: white;
-    text-decoration: none;
-    border-radius: 6px;
-    font-weight: bold;
-    transition: background-color 0.3s;
-  }
-  
-  .notfound-back-home-link:hover {
-    background-color: #005f6b;
-  }
-  
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.notfound-page h2 {
+  font-size: 32px;
+  margin-bottom: 20px;
+}
+
+.notfound-page p {
+  font-size: 18px;
+  margin-bottom: 30px;
+  color: #666;
+}
+
+.notfound-back-home-link {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #007185;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.notfound-back-home-link:hover {
+  background-color: #005f6b;
+}

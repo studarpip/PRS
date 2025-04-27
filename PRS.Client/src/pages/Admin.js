@@ -28,11 +28,11 @@ function Admin() {
         fetchProducts();
         axios.get("/api/options/categories")
             .then(res => setCategories(res.data.data))
-            .catch(() => alert("Failed to load categories"));
+            .catch(() => { window.location.href = "/login"; });
 
         axios.get("/api/options/orderBy")
             .then(res => setOrderByOptions(res.data.data))
-            .catch(() => alert("Failed to load order by options"));
+            .catch(() => { window.location.href = "/login"; });
     }, []);
 
     const fetchProducts = () => {
@@ -49,7 +49,7 @@ function Admin() {
 
         axios.post("/api/admin/products/search", searchRequest)
             .then(res => setProducts(res.data.data))
-            .catch(() => alert("Failed to load products"))
+            .catch(() => { window.location.href = "/login"; })
             .finally(() => setLoading(false));
     };
 

@@ -46,8 +46,8 @@ namespace PRS.Server.Services
                 Email = _encryption.Encrypt(request.Email),
                 EmailHash = emailHash,
                 Password = request.Password.HashString(),
-                Country = request.Country,
-                Gender = request.Gender,
+                Country = request.Country ?? Country.Unknown,
+                Gender = request.Gender ?? Gender.Unknown,
                 Role = Role.User,
                 DateOfBirth = DateOnly.FromDateTime(request.DateOfBirth)
             };

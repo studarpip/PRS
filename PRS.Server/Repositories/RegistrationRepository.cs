@@ -86,6 +86,44 @@ namespace PRS.Server.Repositories
                     });
                 }
 
+                var defaultSettings = new RecommendationSettings
+                {
+                    UseContent = true,
+                    UseCollaborative = true,
+                    CategoryWeight = 0.8,
+                    PriceWeight = 0.2,
+                    BrowseWeight = 0.1,
+                    ViewWeight = 0.2,
+                    CartWeight = 0.3,
+                    PurchaseWeight = 0.3,
+                    RatingWeight = 0.1
+                };
+
+                await tx.RunAsync(@"
+                    MERGE (s:Setting {userId: $userId})
+                    SET s.useContent = $useContent,
+                        s.useCollaborative = $useCollaborative,
+                        s.categoryWeight = $categoryWeight,
+                        s.priceWeight = $priceWeight,
+                        s.browseWeight = $browseWeight,
+                        s.viewWeight = $viewWeight,
+                        s.cartWeight = $cartWeight,
+                        s.purchaseWeight = $purchaseWeight,
+                        s.ratingWeight = $ratingWeight
+                ", new
+                {
+                    userId = user.Id.ToString(),
+                    useContent = defaultSettings.UseContent,
+                    useCollaborative = defaultSettings.UseCollaborative,
+                    categoryWeight = defaultSettings.CategoryWeight,
+                    priceWeight = defaultSettings.PriceWeight,
+                    browseWeight = defaultSettings.BrowseWeight,
+                    viewWeight = defaultSettings.ViewWeight,
+                    cartWeight = defaultSettings.CartWeight,
+                    purchaseWeight = defaultSettings.PurchaseWeight,
+                    ratingWeight = defaultSettings.RatingWeight
+                });
+
                 await tx.CommitAsync();
             }
             catch

@@ -37,7 +37,7 @@ namespace PRS.Server
                     options.Cookie.HttpOnly = true;
                     options.Cookie.SameSite = SameSiteMode.Lax;
                     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                    options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+                    options.ExpireTimeSpan = TimeSpan.FromMinutes(1);
                     options.SlidingExpiration = true;
 
                     options.Events = new CookieAuthenticationEvents
@@ -73,6 +73,8 @@ namespace PRS.Server
             builder.Services.AddScoped<ICartRepository, CartRepository>();
             builder.Services.AddScoped<IRatingService, RatingService>();
             builder.Services.AddScoped<IRatingRepository, RatingRepository>();
+            builder.Services.AddScoped<ISettingsRepository, SettingsRepository>();
+            builder.Services.AddScoped<ISettingsService, SettingsService>();
 
 
             var app = builder.Build();

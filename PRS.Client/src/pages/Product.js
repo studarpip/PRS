@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { useCart } from "../contexts/CartContext";
+import { ArrowLeft } from "lucide-react";
 import "../css/Product.css";
 
 function Product() {
@@ -13,10 +14,10 @@ function Product() {
   const [loading, setLoading] = useState(true);
   const [cartCount, setCartCount] = useState(1);
   const [cartItem, setCartItem] = useState(null);
-  const [feedbackMessage, setFeedbackMessage] = useState("");
 
   const [userCanRate, setUserCanRate] = useState(false);
-  const [userRating, setUserRating] = useState(0);
+  const [previousRating, setPreviousRating] = useState(null);
+  const [currentRating, setCurrentRating] = useState(0);
 
   useEffect(() => {
     fetchProduct();
@@ -28,8 +29,7 @@ function Product() {
     axios.get(`/api/products/${id}`)
       .then(res => setProduct(res.data.data))
       .catch(() => {
-        alert("Failed to load product");
-        navigate("/home");
+        window.location.href = "/login"; 
       })
       .finally(() => setLoading(false));
   };
@@ -41,7 +41,6 @@ function Product() {
         const found = cart.find(item => item.productId === id);
         if (found) {
           setCartItem(found);
-          setCartCount(found.count);
         }
       })
       .catch(() => { });
@@ -54,44 +53,38 @@ function Product() {
         if (data) {
           setUserCanRate(data.canRate);
           if (data.previousRating !== null) {
-            setUserRating(data.previousRating);
+            setPreviousRating(data.previousRating);
+            setCurrentRating(0);
           }
         }
       })
       .catch(() => { });
   };
 
-  const handleUpdateCart = () => {
-    if (cartItem && cartItem.count === cartCount) {
-      setFeedbackMessage("No changes to update.");
-      setTimeout(() => setFeedbackMessage(""), 2000);
-      return;
-    }
+  const handleAddToCart = () => {
+    const newCount = (cartItem?.count || 0) + cartCount;
 
     axios.post("/api/cart", {
       productId: product.id,
-      count: cartCount
+      count: newCount
     })
       .then(() => {
         fetchCartCount();
-        fetchCartItem();
-        setFeedbackMessage("Cart updated!");
-        setTimeout(() => setFeedbackMessage(""), 2000);
       })
       .catch(() => {
-        alert("Failed to update cart");
+        window.location.href = "/login";
       });
   };
 
   const handleSubmitRating = () => {
-    if (userRating < 1 || userRating > 5) {
+    if (currentRating < 1 || currentRating > 5) {
       alert("Please select a rating between 1 and 5.");
       return;
     }
 
     axios.post("/api/rating", {
       productId: product.id,
-      rating: userRating
+      rating: currentRating
     })
       .then(() => {
         alert("Rating submitted!");
@@ -103,12 +96,18 @@ function Product() {
       });
   };
 
-  if (loading) return <p>Loading product...</p>;
-  if (!product) return <p>Product not found.</p>;
+  if (loading) {
+    return <div className="prod-loading">Loading product...</div>;
+  }
+  if (!product) {
+    return <div className="prod-loading">Product not found.</div>;
+  }
 
   return (
     <div className="product-page">
-      <button onClick={() => navigate(-1)} className="product-back-button">← Back</button>
+      <button onClick={() => navigate(-1)} className="product-back-button" title="Back">
+        <ArrowLeft size={20} />
+      </button>
 
       <div className="product-content">
         <div className="product-image-container">
@@ -127,13 +126,11 @@ function Product() {
           <h1>{product.name}</h1>
 
           <div className="product-rating">
-            <div>
-              {Array.from({ length: 5 }, (_, i) => (
-                <span key={i}>
-                  {i < Math.round(product.rating || 0) ? '★' : '☆'}
-                </span>
-              ))}
-            </div>
+            {Array.from({ length: 5 }, (_, i) => (
+              <span key={i}>
+                {i < Math.round(product.rating || 0) ? '★' : '☆'}
+              </span>
+            ))}
             <div className="product-rating-count">({product.ratingCount || 0})</div>
           </div>
 
@@ -142,10 +139,10 @@ function Product() {
           <div className="product-description">
             {product.description || "No description available."}
           </div>
+        </div>
 
-          {cartItem && (
-            <div className="product-cart-in-cart">In your cart</div>
-          )}
+        <div className="product-side-card">
+          <div className="product-side-price">{product.price}€</div>
 
           <div className="product-quantity-selector">
             <label>Quantity:</label>
@@ -155,38 +152,37 @@ function Product() {
           </div>
 
           <button
-            onClick={handleUpdateCart}
+            onClick={handleAddToCart}
             className="product-add-to-cart-button"
           >
-            {cartItem ? "Update Cart" : "Add to Cart"}
+            Add to Cart
           </button>
-
-          {feedbackMessage && (
-            <div className="product-feedback-message">
-              {feedbackMessage}
-            </div>
-          )}
 
           {userCanRate && (
             <div className="product-rating-section">
-              <h3>Rate this Product</h3>
+              <h3>Rate this product</h3>
               <div className="product-rating-stars">
                 {Array.from({ length: 5 }, (_, i) => (
                   <span
                     key={i}
-                    className={i < userRating ? "selected-star" : ""}
-                    onClick={() => setUserRating(i + 1)}
+                    className={
+                      (currentRating !== 0 ? (i < currentRating) : (i < previousRating))
+                        ? "selected-star"
+                        : ""
+                    }
+                    onClick={() => setCurrentRating(i + 1)}
                   >
                     ★
                   </span>
-
                 ))}
               </div>
+
               <button
                 onClick={handleSubmitRating}
                 className="product-rate-button"
+                disabled={currentRating === 0 || currentRating === previousRating}
               >
-                {userRating ? "Update Rating" : "Submit Rating"}
+                {previousRating !== null ? "Update Rating" : "Submit Rating"}
               </button>
             </div>
           )}

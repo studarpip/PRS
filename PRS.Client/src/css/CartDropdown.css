@@ -1,29 +1,91 @@
-.cart-dropdown {
-    position: absolute;
-    top: 40px;
-    right: 0;
-    width: 250px;
-    background-color: white;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 10px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-  }
-  
-  .cart-dropdown-text {
-    font-size: 14px;
-    color: #555;
-  }
-  
-  .cart-dropdown-items {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .cart-dropdown-item {
-    font-size: 14px;
-    color: #333;
-  }
-  
+.mini-cart-dropdown {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  width: 300px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+
+.mini-cart-dropdown-text {
+  font-size: 14px;
+  color: #555;
+  text-align: center;
+}
+
+.mini-cart-dropdown-items {
+  display: flex;
+  flex-direction: column;
+}
+
+.mini-cart-dropdown-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+  color: #333;
+  transition: background-color 0.2s;
+}
+
+.mini-cart-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.cart-dropdown-item:hover {
+  background-color: #f5f5f5;
+}
+
+.mini-cart-item-left {
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.mini-cart-item-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.mini-cart-item-placeholder {
+  width: 100%;
+  height: 100%;
+  background-color: #ddd;
+  border-radius: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 10px;
+  color: #666;
+  border: 1px solid #ccc;
+}
+
+.mini-cart-item-info {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.mini-cart-item-name {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.mini-cart-item-count {
+  font-size: 12px;
+  color: #777;
+}
+
+.mini-cart-item-price {
+  font-weight: bold;
+  font-size: 14px;
+  margin-left: 10px;
+}

@@ -27,8 +27,8 @@ function Registration({ user }) {
       .then(res => {
         const raw = res.data.data;
         setOptions({
-          genders: raw.genders,
-          countries: raw.countries
+          genders: [...raw.genders, { value: "null", label: "Don't want to specify" }],
+          countries: [...raw.countries, { value: "null", label: "Don't want to specify" }]
         });
       })
       .catch(() => alert("Failed to load registration options"));
@@ -44,21 +44,20 @@ function Registration({ user }) {
     try {
       const payload = {
         ...form,
-        gender: parseInt(form.gender),
-        country: parseInt(form.country),
+        gender: form.gender === "null" ? null : parseInt(form.gender),
+        country: form.country === "null" ? null : parseInt(form.country),
       };
 
       await axios.post("/api/register", payload);
       alert("Registration successful!");
       navigate("/login");
     } catch (err) {
-      alert(err.response?.data?.message || "Registration failed.");
+      alert(err.response?.data?.errorMessage || "Registration failed.");
     }
   };
 
   return (
     <div className="registration-page">
-      <h2>Register</h2>
       <form onSubmit={handleSubmit} className="registration-form">
         <div className="reg-form-group">
           <label>Username:</label>

@@ -18,15 +18,17 @@ import Cart from "./pages/Cart";
 import Unauthorized from "./pages/Unauthorized";
 import NotFound from "./pages/NotFound";
 import CartDropdown from "./components/CartDropdown";
+import RecommendationSettings from "./components/RecommendationSettings";
 import { login, logout, getCurrentUser, isAdmin } from "./api/auth";
 import { useCart, CartProvider } from "./contexts/CartContext";
-import { Home as HomeIcon, LogIn, LogOut, ShoppingCart, UserCog } from "lucide-react";
+import { Home as HomeIcon, LogIn, LogOut, ShoppingCart, UserCog, Settings as SettingsIcon } from "lucide-react";
 import "./css/App.css";
 
 function App() {
   const [user, setUser] = useState(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [cartOpen, setCartOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [animateBadge, setAnimateBadge] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -110,24 +112,30 @@ function App() {
 
         <div className="app-nav-right">
           {user && (
-            <div
-              className="app-cart-link-wrapper"
-              onMouseEnter={() => setCartOpen(true)}
-              onMouseLeave={() => setCartOpen(false)}
-            >
-              <Link
-                to="/cart"
-                className={`app-cart-link ${location.pathname.startsWith("/cart") ? "active-link" : ""}`}
+            <>
+              <div
+                className="app-cart-link-wrapper"
+                onMouseEnter={() => setCartOpen(true)}
+                onMouseLeave={() => setCartOpen(false)}
               >
-                <ShoppingCart size={18} />
-                {cartCount > 0 && (
-                  <span className={`app-cart-badge ${animateBadge ? "app-bounce" : ""}`}>
-                    {cartCount}
-                  </span>
-                )}
-              </Link>
-              {cartOpen && <CartDropdown />}
-            </div>
+                <Link
+                  to="/cart"
+                  className={`app-cart-link ${location.pathname.startsWith("/cart") ? "active-link" : ""}`}
+                >
+                  <ShoppingCart size={18} />
+                  {cartCount > 0 && (
+                    <span className={`app-cart-badge ${animateBadge ? "app-bounce" : ""}`}>
+                      {cartCount}
+                    </span>
+                  )}
+                </Link>
+                {cartOpen && <CartDropdown />}
+              </div>
+
+              <button onClick={() => setSettingsOpen(true)} className="app-settings-button">
+                <SettingsIcon size={18} />
+              </button>
+            </>
           )}
 
           {!user && (
@@ -160,6 +168,14 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
+
+      {settingsOpen && (
+        <div className="app-modal-overlay">
+          <div className="app-modal-content">
+            <RecommendationSettings onClose={() => setSettingsOpen(false)} />
+          </div>
+        </div>
+      )}
     </>
   );
 }

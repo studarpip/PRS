@@ -26,7 +26,6 @@ function Login({ onLogin, user }) {
 
     return (
         <div className="login-page">
-            <h2>Login</h2>
             <form onSubmit={handleLogin} className="login-form">
                 <div className="login-form-group">
                     <label>Username:</label>

@@ -21,7 +21,7 @@ function ProductCreateEdit({ product, onClose, onSave }) {
       .then(res => {
         setCategories(res.data.data);
       })
-      .catch(() => alert("Failed to load categories"))
+      .catch(() => { window.location.href = "/login"; })
       .finally(() => setLoadingCategories(false));
   }, []);
 
@@ -74,12 +74,22 @@ function ProductCreateEdit({ product, onClose, onSave }) {
     } catch (err) {
       console.error(err);
       alert("Failed to save product.");
+      onClose();
     } finally {
       setSaving(false);
     }
   };
 
-  if (loadingCategories) return <p>Loading categories...</p>;
+  if (loadingCategories) {
+    return (
+      <div className="product-create-edit">
+        <h3>{product.id ? "Edit Product" : "Create New Product"}</h3>
+        <div className="prod-loading-content">
+          Loading settings...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="product-create-edit">

@@ -60,11 +60,11 @@ function Home() {
   const fetchFilters = () => {
     axios.get("/api/options/categories")
       .then(res => setCategories(res.data.data))
-      .catch(() => alert("Failed to load categories"));
+      .catch(() => { window.location.href = "/login"; })
 
     axios.get("/api/options/orderBy")
       .then(res => setOrderByOptions(res.data.data))
-      .catch(() => alert("Failed to load order by options"));
+      .catch(() => { window.location.href = "/login"; });
   };
 
   const fetchProducts = (customFilters = filters, customPage = page) => {
@@ -88,7 +88,7 @@ function Home() {
         setProducts(raw);
         setHasMore(raw.length === pageSize);
       })
-      .catch(() => alert("Failed to load products"))
+      .catch(() => { window.location.href = "/login"; })
       .finally(() => setLoading(false));
   };
 

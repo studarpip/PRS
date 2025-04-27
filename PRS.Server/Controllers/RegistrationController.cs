@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PRS.Model.Entities;
-using PRS.Model.Enums;
 using PRS.Model.Requests;
 using PRS.Model.Responses;
-using PRS.Server.Helpers;
 using PRS.Server.Services.Interfaces;
 
 namespace PRS.Server.Controllers

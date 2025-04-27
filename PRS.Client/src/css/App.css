@@ -17,7 +17,8 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.app-nav-left, .app-nav-right {
+.app-nav-left,
+.app-nav-right {
   display: flex;
   align-items: center;
   gap: 20px;
@@ -86,8 +87,15 @@
 }
 
 @keyframes app-bounce {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.4); }
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.4);
+  }
 }
 
 .app-bounce {
@@ -97,4 +105,27 @@
 .active-link {
   background-color: #333;
   border-radius: 8px;
+}
+
+.app-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.app-modal-content {
+  width: 100%;
+  max-width: 700px;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  overflow-y: auto;
+  max-height: 90vh;
 }

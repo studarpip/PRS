@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../contexts/CartContext";
+import { Trash2 } from "lucide-react";
 import "../css/Cart.css";
 
 function Cart() {
@@ -18,12 +19,9 @@ function Cart() {
     const fetchCart = () => {
         setLoading(true);
         axios.get("/api/cart")
-            .then(res => {
-                setCartItems(res.data.data);
-            })
+            .then(res => setCartItems(res.data.data))
             .catch(() => {
-                alert("Failed to load cart");
-                navigate("/home");
+                window.location.href = "/login";
             })
             .finally(() => setLoading(false));
     };
@@ -79,14 +77,12 @@ function Cart() {
 
     return (
         <div className="cart-page">
-            <h2>Your Cart</h2>
-
-            {cartItems.length === 0 ? (
-                <p>Your cart is empty.</p>
-            ) : (
-                <>
-                    <div className="cart-items">
-                        {cartItems.map(item => (
+            <div className="cart-content">
+                <div className="cart-items">
+                    {cartItems.length === 0 ? (
+                        <p>Your cart is empty.</p>
+                    ) : (
+                        cartItems.map(item => (
                             <div key={item.productId} className="cart-item" onClick={() => navigate(`/product/${item.productId}`)}>
                                 {item.image ? (
                                     <img
@@ -100,7 +96,9 @@ function Cart() {
 
                                 <div className="cart-item-info">
                                     <div className="cart-item-name">{item.name}</div>
-                                    <div className="cart-item-price">{item.price}€</div>
+                                    <div className="cart-item-details">
+                                        {item.count} × {item.price.toFixed(2)}€ = {(item.price * item.count).toFixed(2)}€
+                                    </div>
                                 </div>
 
                                 <div className="cart-item-quantity" onClick={e => e.stopPropagation()}>
@@ -110,33 +108,31 @@ function Cart() {
                                 </div>
 
                                 <button
-                                    className="cart-item-remove"
+                                    className="cart-icon-button cart-delete-button"
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         removeItem(item.productId);
                                     }}
+                                    title="Remove"
                                 >
-                                    Remove
+                                    <Trash2 size={20} />
                                 </button>
                             </div>
-                        ))}
-                    </div>
+                        ))
+                    )}
+                </div>
 
-                    <div className="cart-total">
-                        Total: {totalPrice.toFixed(2)}€
+                <div className="cart-summary">
+                    <div className="cart-summary-box">
+                        <div className="cart-total">Total: {totalPrice.toFixed(2)}€</div>
+                        <div className="cart-buy">
+                            <button onClick={handleBuy} disabled={buying} className="cart-buy-button">
+                                {buying ? "Processing..." : "Buy Now"}
+                            </button>
+                        </div>
                     </div>
-
-                    <div className="cart-buy">
-                        <button
-                            onClick={handleBuy}
-                            disabled={buying}
-                            className="cart-buy-button"
-                        >
-                            {buying ? "Processing..." : "Buy Now"}
-                        </button>
-                    </div>
-                </>
-            )}
+                </div>
+            </div>
         </div>
     );
 }
