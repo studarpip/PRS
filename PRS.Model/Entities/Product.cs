@@ -11,5 +11,6 @@ namespace PRS.Model.Entities
         public byte[]? Image { get; set; }
         public decimal Price { get; set; }
         public decimal? Rating { get; set; }
+        public int? RatingCount { get; set; }
     }
 }

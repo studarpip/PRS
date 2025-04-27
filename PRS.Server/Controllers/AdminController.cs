@@ -19,10 +19,10 @@ namespace PRS.Server.Controllers
             _productService = productService;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<ServerResponse<List<Product>>>> GetAll()
+        [HttpPost("search")]
+        public async Task<ActionResult<ServerResponse<List<Product>>>> Search([FromBody] ProductSearchRequest request)
         {
-            var response = await _productService.GetAllAsync();
+            var response = await _productService.SearchAsync(request, null);
             return Ok(response);
         }
 

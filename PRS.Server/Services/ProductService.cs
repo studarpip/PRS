@@ -16,29 +16,26 @@ namespace PRS.Server.Services
             _repository = repository;
         }
 
-        public async Task<ServerResponse<Product>> GetByIdAsync(Guid id)
+        public async Task<ServerResponse<Product>> GetByIdAsync(Guid itemId, string userId)
         {
-            var product = await _repository.GetByIdAsync(id);
+            var product = await _repository.GetByIdAsync(itemId, userId);
             if (product == null)
                 throw new ProductNotFoundException();
 
             return ServerResponse<Product>.Ok(product);
         }
 
-        public async Task<ServerResponse<List<Product>>> SearchAsync(ProductSearchRequest request)
+        public async Task<ServerResponse<List<Product>>> SearchAsync(ProductSearchRequest request, string? userId)
         {
-            var products = await _repository.SearchAsync(request);
-            return ServerResponse<List<Product>>.Ok(products);
-        }
-
-        public async Task<ServerResponse<List<Product>>> GetAllAsync()
-        {
-            var products = await _repository.GetAllAsync();
+            var products = await _repository.SearchAsync(request, userId);
             return ServerResponse<List<Product>>.Ok(products);
         }
 
         public async Task<ServerResponse> CreateAsync(ProductCreateEditRequest request)
         {
+            if (request.Price <= 0)
+                throw new PriceException();
+
             var product = new Product
             {
                 Id = Guid.NewGuid(),
@@ -55,6 +52,9 @@ namespace PRS.Server.Services
 
         public async Task<ServerResponse> UpdateAsync(Guid id, ProductCreateEditRequest request)
         {
+            if (request.Price <= 0)
+                throw new PriceException();
+
             var product = new Product
             {
                 Id = id,

@@ -1,0 +1,15 @@
+.welcome-container {
+    padding: 30px;
+    text-align: center;
+  }
+  
+  .welcome-title {
+    font-size: 28px;
+    margin-bottom: 10px;
+  }
+  
+  .welcome-message {
+    font-size: 18px;
+    color: #666;
+  }
+  

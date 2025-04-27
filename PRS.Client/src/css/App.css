@@ -1,0 +1,100 @@
+.app-container {
+  padding-top: 90px;
+}
+
+.app-nav {
+  position: fixed;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1e1e1e;
+  color: white;
+  padding: 15px 30px;
+  border-bottom: 1px solid #444;
+  width: 100%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.app-nav-left, .app-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.app-nav a {
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.2s, color 0.2s;
+  border-radius: 6px;
+}
+
+.app-nav a:hover {
+  background-color: #333;
+  color: #FFD814;
+}
+
+.app-nav button {
+  background: none;
+  color: white;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.2s, color 0.2s;
+  border-radius: 6px;
+}
+
+.app-nav button:hover {
+  background-color: #333;
+  color: #FFD814;
+}
+
+.app-cart-link-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.app-cart-link {
+  color: white;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+}
+
+.app-cart-badge {
+  background-color: red;
+  color: white;
+  border-radius: 12px;
+  padding: 2px 6px;
+  font-size: 12px;
+  font-weight: bold;
+  min-width: 18px;
+  text-align: center;
+}
+
+@keyframes app-bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.4); }
+}
+
+.app-bounce {
+  animation: app-bounce 0.5s;
+}
+
+.active-link {
+  background-color: #333;
+  border-radius: 8px;
+}

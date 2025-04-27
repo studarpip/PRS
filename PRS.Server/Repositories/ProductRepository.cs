@@ -16,15 +16,19 @@ namespace PRS.Server.Repositories
             _driver = driver;
         }
 
-        public async Task<Product?> GetByIdAsync(Guid id)
+        public async Task<Product?> GetByIdAsync(Guid itemId, string userId)
         {
             await using var session = _driver.AsyncSession();
 
             var result = await session.RunAsync(@"
                 MATCH (p:Product { id: $id })
+                WHERE coalesce(p.isDeleted, false) = false
                 OPTIONAL MATCH (p)-[:IN_CATEGORY]->(c:Category)
-                RETURN p, collect(c.name) AS categories
-            ", new { id = id.ToString() });
+                OPTIONAL MATCH (:User)-[r:RATED]->(p)
+                WITH p, collect(c.name) AS categories, count(r) AS ratingCount
+                RETURN p, categories, ratingCount
+            ", new { id = itemId.ToString() });
+
 
             var records = await result.ToListAsync();
             if (records.Count == 0)
@@ -42,6 +46,19 @@ namespace PRS.Server.Repositories
                     categories.Add(parsed);
             }
 
+            await session.ExecuteWriteAsync(async tx =>
+            {
+                await tx.RunAsync(@"
+                    MATCH (u:User { id: $userId }), (p:Product { id: $productId })
+                    MERGE (u)-[r:VIEWED]->(p)
+                    SET r.timestamp = datetime()
+                ", new
+                {
+                    userId,
+                    productId = itemId.ToString()
+                });
+            });
+
             return new Product
             {
                 Id = Guid.Parse(node.Properties["id"].As<string>()),
@@ -50,11 +67,12 @@ namespace PRS.Server.Repositories
                 Image = node.Properties.ContainsKey("image") ? node.Properties["image"].As<byte[]>() : null,
                 Categories = categories,
                 Price = node.Properties["price"].As<decimal>(),
-                Rating = node.Properties.ContainsKey("averageRating") ? node.Properties["averageRating"].As<decimal>() : null
-            };
+                Rating = node.Properties.ContainsKey("averageRating") ? node.Properties["averageRating"].As<decimal>() : null,
+                RatingCount = record.Keys.Contains("ratingCount") ? record["ratingCount"].As<int>() : null
+        };
         }
 
-        public async Task<List<Product>> SearchAsync(ProductSearchRequest request)
+        public async Task<List<Product>> SearchAsync(ProductSearchRequest request, string? userId)
         {
             await using var session = _driver.AsyncSession();
 
@@ -78,7 +96,11 @@ namespace PRS.Server.Repositories
             if (request.Categories != null && request.Categories.Any())
                 filters.Add("any(cat IN $categories WHERE cat IN categories)");
 
-            string? whereClause = filters.Any() ? $"WHERE {string.Join(" AND ", filters)}" : null;
+            var filtersUsed = false;
+            if (filters.Any())
+                filtersUsed = true;
+
+            filters.Add("(p.isDeleted IS NULL OR p.isDeleted = false)");
 
             string? orderByClause = request.OrderBy switch
             {
@@ -92,13 +114,16 @@ namespace PRS.Server.Repositories
             string query = $@"
                 MATCH (p:Product)
                 OPTIONAL MATCH (p)-[:IN_CATEGORY]->(c:Category)
-                WITH p, collect(c.name) AS categories
-                {whereClause}
+                OPTIONAL MATCH (:User)-[r:RATED]->(p)
+                WITH p, collect(c.name) AS categories, count(r) AS ratingCount
+                WHERE {string.Join(" AND ", filters)}
                 {orderByClause}
-                RETURN p, categories
-                SKIP $skip
-                LIMIT $limit
+                RETURN p, categories, ratingCount
             ";
+
+
+            if (userId is not null)
+                query += "SKIP $skip LIMIT $limit";
 
             var result = await session.RunAsync(query, new
             {
@@ -134,50 +159,30 @@ namespace PRS.Server.Repositories
                     Image = node.Properties.ContainsKey("image") ? node.Properties["image"].As<byte[]>() : null,
                     Categories = categories,
                     Price = node.Properties["price"].As<decimal>(),
-                    Rating = node.Properties.ContainsKey("averageRating") ? node.Properties["averageRating"].As<decimal>() : null
-                });
-            });
-
-            return products;
-        }
-
-
-        public async Task<List<Product>> GetAllAsync()
-        {
-            await using var session = _driver.AsyncSession();
-
-            var result = await session.RunAsync(@"
-                MATCH (p:Product)
-                OPTIONAL MATCH (p)-[:IN_CATEGORY]->(c:Category)
-                RETURN p, collect(c.name) AS categories
-            ");
-
-            var products = new List<Product>();
-
-            await result.ForEachAsync(record =>
-            {
-                var node = record["p"].As<INode>();
-                var categoryStrings = record["categories"].As<List<string>>();
-
-                var categories = new List<Category>();
-                foreach (var c in categoryStrings)
-                {
-                    if (Enum.TryParse<Category>(c, out var parsed))
-                        categories.Add(parsed);
-                }
-
-
-                products.Add(new Product
-                {
-                    Id = Guid.Parse(node.Properties["id"].As<string>()),
-                    Name = node.Properties["name"].As<string>(),
-                    Description = node.Properties.ContainsKey("description") ? node.Properties["description"].As<string>() : null,
-                    Image = node.Properties.ContainsKey("image") ? node.Properties["image"].As<byte[]>() : null,
-                    Categories = categories,
-                    Price = node.Properties["price"].As<decimal>(),
                     Rating = node.Properties.ContainsKey("averageRating") ? node.Properties["averageRating"].As<decimal>() : null,
-                });
+                    RatingCount = record.Keys.Contains("ratingCount") ? record["ratingCount"].As<int>() : null
             });
+            });
+
+            if (userId is not null && filtersUsed && request.Page == 1)
+            {
+                var browsedProducts = products.Take(1).ToList();
+                await session.ExecuteWriteAsync(async tx =>
+                {
+                    foreach (var product in browsedProducts)
+                    {
+                        await tx.RunAsync(@"
+                            MATCH (u:User { id: $userId }), (p:Product { id: $productId })
+                            MERGE (u)-[r:BROWSED]->(p)
+                            SET r.timestamp = datetime()
+                        ", new
+                        {
+                            userId,
+                            productId = product.Id.ToString()
+                        });
+                    }
+                });
+            }
 
             return products;
         }
@@ -292,7 +297,7 @@ namespace PRS.Server.Repositories
             {
                 await tx.RunAsync(@"
                     MATCH (p:Product { id: $id })
-                    DETACH DELETE p
+                    SET p.isDeleted = true
                 ", new { id = id.ToString() });
             });
         }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { isAdmin } from "../api/auth";
+import "../css/Login.css";
 
 function Login({ onLogin, user }) {
     const navigate = useNavigate();
@@ -24,10 +25,10 @@ function Login({ onLogin, user }) {
     };
 
     return (
-        <div>
+        <div className="login-page">
             <h2>Login</h2>
-            <form onSubmit={handleLogin}>
-                <div>
+            <form onSubmit={handleLogin} className="login-form">
+                <div className="login-form-group">
                     <label>Username:</label>
                     <input
                         type="text"
@@ -36,7 +37,7 @@ function Login({ onLogin, user }) {
                         required
                     />
                 </div>
-                <div style={{ marginTop: "10px" }}>
+                <div className="login-form-group">
                     <label>Password:</label>
                     <input
                         type="password"
@@ -45,12 +46,12 @@ function Login({ onLogin, user }) {
                         required
                     />
                 </div>
-                <button type="submit" style={{ marginTop: "15px" }}>
+                <button type="submit" className="login-button">
                     Login
                 </button>
             </form>
 
-            <div style={{ marginTop: "20px" }}>
+            <div className="login-register-link">
                 <p>Don't have an account? <Link to="/register">Register</Link></p>
             </div>
         </div>

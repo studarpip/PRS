@@ -1,0 +1,43 @@
+.registration-page {
+    padding: 30px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.registration-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.reg-form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.reg-form-group label {
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.registration-form input,
+.registration-form select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.reg-submit-btn {
+    padding: 10px;
+    background-color: #FFD814;
+    border: 1px solid #FCD200;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.reg-submit-btn:hover {
+    background-color: #f7ca00;
+}

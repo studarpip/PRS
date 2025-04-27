@@ -1,0 +1,38 @@
+.multi-select-container {
+    position: relative;
+    margin-top: 5px;
+  }
+  
+  .multi-select-display {
+    border: 1px solid #ccc;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #fff;
+  }
+  
+  .multi-select-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 1000;
+    margin-top: 2px;
+  }
+  
+  .multi-select-option {
+    padding: 5px;
+  }
+  
+  .multi-select-label {
+    cursor: pointer;
+  }
+  
+  .multi-select-checkbox {
+    margin-right: 5px;
+  }
+  

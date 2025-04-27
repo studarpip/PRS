@@ -4,4 +4,9 @@
     {
         public ProductNotFoundException() : base("Product not found.") { }
     }
+
+    public class PriceException : PrsException
+    {
+        public PriceException() : base("Price has to higher than 0.") { }
+    }
 }

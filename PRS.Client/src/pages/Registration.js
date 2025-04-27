@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import { isAdmin } from "../api/auth";
+import "../css/Registration.css";
 
 function Registration({ user }) {
   const [options, setOptions] = useState({ genders: [], countries: [] });
@@ -56,22 +57,22 @@ function Registration({ user }) {
   };
 
   return (
-    <div>
+    <div className="registration-page">
       <h2>Register</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
+      <form onSubmit={handleSubmit} className="registration-form">
+        <div className="reg-form-group">
           <label>Username:</label>
           <input name="username" value={form.username} onChange={handleChange} required />
         </div>
-        <div>
+        <div className="reg-form-group">
           <label>Email:</label>
           <input name="email" type="email" value={form.email} onChange={handleChange} required />
         </div>
-        <div>
+        <div className="reg-form-group">
           <label>Password:</label>
           <input name="password" type="password" value={form.password} onChange={handleChange} required />
         </div>
-        <div>
+        <div className="reg-form-group">
           <label>Gender:</label>
           <select name="gender" value={form.gender} onChange={handleChange} required>
             <option value="">Select</option>
@@ -80,7 +81,7 @@ function Registration({ user }) {
             ))}
           </select>
         </div>
-        <div>
+        <div className="reg-form-group">
           <label>Country:</label>
           <select name="country" value={form.country} onChange={handleChange} required>
             <option value="">Select</option>
@@ -89,11 +90,11 @@ function Registration({ user }) {
             ))}
           </select>
         </div>
-        <div>
+        <div className="reg-form-group">
           <label>Date of Birth:</label>
           <input name="dateOfBirth" type="date" value={form.dateOfBirth} onChange={handleChange} required />
         </div>
-        <button type="submit" style={{ marginTop: "15px" }}>Register</button>
+        <button type="submit" className="reg-submit-btn">Register</button>
       </form>
     </div>
   );
