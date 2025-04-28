@@ -2,8 +2,10 @@ import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import MultiSelectDropdown from "./MultiSelectDropdown";
 import "../css/ProductCreateEdit.css";
+import { useNotification } from "../contexts/NotificationContext";
 
 function ProductCreateEdit({ product, onClose, onSave }) {
+  const { notify } = useNotification();
   const [name, setName] = useState(product.name || "");
   const [description, setDescription] = useState(product.description || "");
   const [price, setPrice] = useState(product.price || "");
@@ -21,7 +23,10 @@ function ProductCreateEdit({ product, onClose, onSave }) {
       .then(res => {
         setCategories(res.data.data);
       })
-      .catch(() => { window.location.href = "/login"; })
+      .catch(() => {
+        window.location.href = "/login";
+        notify("Session expired", "error");
+      })
       .finally(() => setLoadingCategories(false));
   }, []);
 
@@ -48,6 +53,16 @@ function ProductCreateEdit({ product, onClose, onSave }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!name.trim()) {
+      notify("Product name is required.", "error");
+      return;
+    }
+    if (!price || isNaN(price) || parseFloat(price) <= 0) {
+      notify("Product price must be a number greater than 0.", "error");
+      return;
+    }
+
     setSaving(true);
 
     const payload = {
@@ -63,17 +78,17 @@ function ProductCreateEdit({ product, onClose, onSave }) {
         await axios.put(`/api/admin/products/${product.id}`, payload, {
           headers: { 'Content-Type': 'application/json' }
         });
-        alert("Product updated successfully!");
+        notify("Product updated successfully!", "success");
       } else {
         await axios.post("/api/admin/products", payload, {
           headers: { 'Content-Type': 'application/json' }
         });
-        alert("Product created successfully!");
+        notify("Product created successfully!", "success");
       }
       onSave();
     } catch (err) {
-      console.error(err);
-      alert("Failed to save product.");
+      window.location.href = "/login";
+      notify("Session expired", "error");
       onClose();
     } finally {
       setSaving(false);
@@ -99,7 +114,7 @@ function ProductCreateEdit({ product, onClose, onSave }) {
 
           <div className="product-form-group">
             <label>Name:</label>
-            <input type="text" value={name} onChange={e => setName(e.target.value)} required />
+            <input type="text" value={name} onChange={e => setName(e.target.value)} />
           </div>
 
           <div className="product-form-group">
@@ -107,10 +122,8 @@ function ProductCreateEdit({ product, onClose, onSave }) {
             <input
               type="number"
               step="0.01"
-              min="0.01"
               value={price}
               onChange={e => setPrice(e.target.value)}
-              required
             />
           </div>
 

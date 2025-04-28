@@ -21,6 +21,7 @@ import CartDropdown from "./components/CartDropdown";
 import RecommendationSettings from "./components/RecommendationSettings";
 import { login, logout, getCurrentUser, isAdmin } from "./api/auth";
 import { useCart, CartProvider } from "./contexts/CartContext";
+import { NotificationProvider } from "./contexts/NotificationContext";
 import { Home as HomeIcon, LogIn, LogOut, ShoppingCart, UserCog, Settings as SettingsIcon } from "lucide-react";
 import "./css/App.css";
 
@@ -62,14 +63,16 @@ function App() {
   }, [cartCount]);
 
   const handleLogin = async (username, password) => {
-    const ok = await login(username, password);
-    if (ok) {
+    const result = await login(username, password);
+
+    if (result.success) {
       const user = await getCurrentUser();
       fetchCartCount();
       setUser(user);
-      return user;
+      return { success: true, user };
+    } else {
+      return { success: false, errorMessage: result.errorMessage };
     }
-    return null;
   };
 
   const handleLogout = async () => {
@@ -183,9 +186,11 @@ function App() {
 export default function AppWrapper() {
   return (
     <BrowserRouter>
-      <CartProvider>
-        <App />
-      </CartProvider>
+      <NotificationProvider>
+        <CartProvider>
+          <App />
+        </CartProvider>
+      </NotificationProvider>
     </BrowserRouter>
   );
 }

@@ -2,8 +2,10 @@ import { useState } from "react";
 import MultiSelectDropdown from "./MultiSelectDropdown";
 import { Search, ChevronUp, ChevronDown } from "lucide-react";
 import "../css/ProductFilters.css";
+import { useNotification } from "../contexts/NotificationContext";
 
 function ProductFilters({ filters, setFilters, categories, orderByOptions, onSearch, isOpen }) {
+  const { notify } = useNotification();
   const [open, setOpen] = useState(isOpen);
 
   const handleClear = () => {
@@ -16,6 +18,35 @@ function ProductFilters({ filters, setFilters, categories, orderByOptions, onSea
       ratingTo: "",
       orderBy: ""
     });
+  };
+
+  const handleSearch = () => {
+    if (filters.priceFrom && parseFloat(filters.priceFrom) < 0) {
+      notify("Price From must be greater than 0", "error");
+      return;
+    }
+    if (filters.priceTo && parseFloat(filters.priceTo) <= 0) {
+      notify("Price To must be greater than 0", "error");
+      return;
+    }
+    if (filters.priceFrom && filters.priceTo && parseFloat(filters.priceFrom) > parseFloat(filters.priceTo)) {
+      notify("Price From cannot be higher than Price To", "error");
+      return;
+    }
+  
+    if (filters.ratingFrom && (parseFloat(filters.ratingFrom) < 1 || parseFloat(filters.ratingFrom) > 5)) {
+      notify("Rating From must be between 1 and 5", "error");
+      return;
+    }
+    if (filters.ratingTo && (parseFloat(filters.ratingTo) < 1 || parseFloat(filters.ratingTo) > 5)) {
+      notify("Rating To must be between 1 and 5", "error");
+      return;
+    }
+    if (filters.ratingFrom && filters.ratingTo && parseFloat(filters.ratingFrom) > parseFloat(filters.ratingTo)) {
+      notify("Rating From cannot be higher than Rating To", "error");
+      return;
+    }
+  
     onSearch();
   };
 
@@ -29,7 +60,7 @@ function ProductFilters({ filters, setFilters, categories, orderByOptions, onSea
           value={filters.input}
           onChange={e => setFilters(prev => ({ ...prev, input: e.target.value }))}
         />
-        <button className="search-button" onClick={onSearch}>
+        <button className="search-button" onClick={handleSearch}>
           <Search size={18} />
         </button>
         <button className="toggle-filters" onClick={() => setOpen(!open)}>

@@ -1,15 +1,20 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "../css/CartDropdown.css";
+import { useNotification } from "../contexts/NotificationContext";
 
 function CartDropdown() {
+  const { notify } = useNotification();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     axios.get("/api/cart")
       .then(res => setItems(res.data.data))
-      .catch(() => { window.location.href = "/login"; })
+      .catch(() => {
+        window.location.href = "/login";
+        notify("Session expired", "error");
+      })
       .finally(() => setLoading(false));
   }, []);
 

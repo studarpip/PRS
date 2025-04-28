@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { isAdmin } from "../api/auth";
 import "../css/Login.css";
+import { useNotification } from "../contexts/NotificationContext";
 
 function Login({ onLogin, user }) {
+    const { notify } = useNotification();
     const navigate = useNavigate();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -16,11 +18,25 @@ function Login({ onLogin, user }) {
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        const user = await onLogin(username, password);
-        if (!user) {
-            alert("Login failed");
+
+        if (!username) {
+            notify("Username not entered", "error");
             return;
         }
+
+        if (!password) {
+            notify("Password not entered", "error");
+            return;
+        }
+
+        const result = await onLogin(username, password);
+
+        if (!result.success) {
+            notify(result.errorMessage, "error");
+            return;
+        }
+
+        const user = result.user;
         navigate(isAdmin(user) ? "/admin" : "/");
     };
 
@@ -33,7 +49,6 @@ function Login({ onLogin, user }) {
                         type="text"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
-                        required
                     />
                 </div>
                 <div className="login-form-group">
@@ -42,7 +57,6 @@ function Login({ onLogin, user }) {
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        required
                     />
                 </div>
                 <button type="submit" className="login-button">

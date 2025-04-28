@@ -7,6 +7,6 @@
 
     public class PriceException : PrsException
     {
-        public PriceException() : base("Price has to higher than 0.") { }
+        public PriceException() : base("Price has to be higher than 0.") { }
     }
 }

@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import "../css/RecommendationSettings.css";
+import { useNotification } from "../contexts/NotificationContext";
 
 function RecommendationSettings({ onClose }) {
+  const { notify } = useNotification();
   const [localSettings, setLocalSettings] = useState(null);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -20,6 +22,7 @@ function RecommendationSettings({ onClose }) {
     } catch (err) {
       onClose();
       window.location.href = "/login";
+      notify("Session expired", "error");
     } finally {
       setLoading(false);
     }
@@ -29,10 +32,10 @@ function RecommendationSettings({ onClose }) {
     try {
       setSaving(true);
       await axios.post("/api/settings", localSettings);
-      alert("Settings created successfully!");
+      notify("Settings created successfully!", "success");
     } catch (err) {
-      console.error(err);
-      alert("Failed to save settings");
+      window.location.href = "/login";
+      notify("Session expired", "error");
     } finally {
       setSaving(false);
       onClose();

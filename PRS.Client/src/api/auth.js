@@ -3,9 +3,10 @@ import api from "./axios";
 export async function login(username, password) {
   try {
     await api.post("/auth/login", { username, password });
-    return true;
-  } catch {
-    return false;
+    return { success: true };
+  } catch (error) {
+    const errorMessage = error.response?.data?.errorMessage || "Login failed.";
+    return { success: false, errorMessage };
   }
 }
 

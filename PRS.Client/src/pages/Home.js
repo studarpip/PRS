@@ -3,8 +3,10 @@ import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import ProductFilters from "../components/ProductFilters";
 import "../css/Home.css";
+import { useNotification } from "../contexts/NotificationContext";
 
 function Home() {
+  const { notify } = useNotification();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -60,11 +62,17 @@ function Home() {
   const fetchFilters = () => {
     axios.get("/api/options/categories")
       .then(res => setCategories(res.data.data))
-      .catch(() => { window.location.href = "/login"; })
+      .catch(() => {
+        window.location.href = "/login";
+        notify("Session expired", "error");
+      })
 
     axios.get("/api/options/orderBy")
       .then(res => setOrderByOptions(res.data.data))
-      .catch(() => { window.location.href = "/login"; });
+      .catch(() => {
+        window.location.href = "/login";
+        notify("Session expired", "error");
+      });
   };
 
   const fetchProducts = (customFilters = filters, customPage = page) => {
@@ -88,7 +96,10 @@ function Home() {
         setProducts(raw);
         setHasMore(raw.length === pageSize);
       })
-      .catch(() => { window.location.href = "/login"; })
+      .catch(() => {
+        window.location.href = "/login";
+        notify("Session expired", "error");;
+      })
       .finally(() => setLoading(false));
   };
 

@@ -4,8 +4,10 @@ import ProductCreateEdit from "../components/ProductCreateEdit";
 import ProductFilters from "../components/ProductFilters";
 import { Pencil, Trash2 } from "lucide-react";
 import "../css/Admin.css";
+import { useNotification } from "../contexts/NotificationContext";
 
 function Admin() {
+    const { notify } = useNotification();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [creating, setCreating] = useState(false);
@@ -28,11 +30,17 @@ function Admin() {
         fetchProducts();
         axios.get("/api/options/categories")
             .then(res => setCategories(res.data.data))
-            .catch(() => { window.location.href = "/login"; });
+            .catch(() => {
+                window.location.href = "/login";
+                notify("Session expired", "error");
+            });
 
         axios.get("/api/options/orderBy")
             .then(res => setOrderByOptions(res.data.data))
-            .catch(() => { window.location.href = "/login"; });
+            .catch(() => {
+                window.location.href = "/login";
+                notify("Session expired", "error");
+            });
     }, []);
 
     const fetchProducts = () => {
@@ -49,7 +57,10 @@ function Admin() {
 
         axios.post("/api/admin/products/search", searchRequest)
             .then(res => setProducts(res.data.data))
-            .catch(() => { window.location.href = "/login"; })
+            .catch(() => {
+                window.location.href = "/login";
+                notify("Session expired", "error");
+            })
             .finally(() => setLoading(false));
     };
 
@@ -63,7 +74,10 @@ function Admin() {
 
         axios.delete(`/api/admin/products/${id}`)
             .then(() => fetchProducts())
-            .catch(() => alert("Failed to delete product"));
+            .catch(() => {
+                window.location.href = "/login";
+                notify("Session expired", "error");
+            });
     };
 
     if (loading) {

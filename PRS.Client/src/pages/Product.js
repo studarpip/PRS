@@ -4,8 +4,10 @@ import axios from "axios";
 import { useCart } from "../contexts/CartContext";
 import { ArrowLeft } from "lucide-react";
 import "../css/Product.css";
+import { useNotification } from "../contexts/NotificationContext";
 
 function Product() {
+  const { notify } = useNotification();
   const { id } = useParams();
   const navigate = useNavigate();
   const { fetchCartCount } = useCart();
@@ -29,7 +31,8 @@ function Product() {
     axios.get(`/api/products/${id}`)
       .then(res => setProduct(res.data.data))
       .catch(() => {
-        window.location.href = "/login"; 
+        window.location.href = "/login";
+        notify("Session expired", "error");
       })
       .finally(() => setLoading(false));
   };
@@ -73,12 +76,13 @@ function Product() {
       })
       .catch(() => {
         window.location.href = "/login";
+        notify("Session expired", "error");
       });
   };
 
   const handleSubmitRating = () => {
     if (currentRating < 1 || currentRating > 5) {
-      alert("Please select a rating between 1 and 5.");
+      notify("Please select a rating between 1 and 5.", "error");
       return;
     }
 
@@ -87,12 +91,13 @@ function Product() {
       rating: currentRating
     })
       .then(() => {
-        alert("Rating submitted!");
+        notify("Rating submitted!", "success");
         fetchProduct();
         fetchCanRate();
       })
       .catch(() => {
-        alert("Failed to submit rating.");
+        window.location.href = "/login";
+        notify("Session expired", "error");
       });
   };
 

@@ -4,8 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "../contexts/CartContext";
 import { Trash2 } from "lucide-react";
 import "../css/Cart.css";
+import { useNotification } from "../contexts/NotificationContext";
 
 function Cart() {
+    const { notify } = useNotification();
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [buying, setBuying] = useState(false);
@@ -22,6 +24,7 @@ function Cart() {
             .then(res => setCartItems(res.data.data))
             .catch(() => {
                 window.location.href = "/login";
+                notify("Session expired", "error");
             })
             .finally(() => setLoading(false));
     };
@@ -38,7 +41,8 @@ function Cart() {
                 fetchCartCount();
             })
             .catch(() => {
-                alert("Failed to update cart");
+                window.location.href = "/login";
+                notify("Session expired", "error");
             });
     };
 
@@ -49,7 +53,8 @@ function Cart() {
                 fetchCartCount();
             })
             .catch(() => {
-                alert("Failed to remove item");
+                window.location.href = "/login";
+                notify("Session expired", "error");
             });
     };
 
@@ -57,12 +62,13 @@ function Cart() {
         setBuying(true);
         axios.post("/api/cart/buy")
             .then(() => {
-                alert("Purchase successful!");
+                notify("Purchase successful!", "success");
                 fetchCart();
                 fetchCartCount();
             })
             .catch(() => {
-                alert("Failed to complete purchase");
+                window.location.href = "/login";
+                notify("Session expired", "error");
             })
             .finally(() => {
                 setBuying(false);
@@ -80,7 +86,7 @@ function Cart() {
             <div className="cart-content">
                 <div className="cart-items">
                     {cartItems.length === 0 ? (
-                        <p>Your cart is empty.</p>
+                        <div className="cart-empty-message">Your cart is empty.</div>
                     ) : (
                         cartItems.map(item => (
                             <div key={item.productId} className="cart-item" onClick={() => navigate(`/product/${item.productId}`)}>
@@ -126,7 +132,7 @@ function Cart() {
                     <div className="cart-summary-box">
                         <div className="cart-total">Total: {totalPrice.toFixed(2)}€</div>
                         <div className="cart-buy">
-                            <button onClick={handleBuy} disabled={buying} className="cart-buy-button">
+                            <button onClick={handleBuy} disabled={buying || cartItems.length === 0} className="cart-buy-button">
                                 {buying ? "Processing..." : "Buy Now"}
                             </button>
                         </div>
