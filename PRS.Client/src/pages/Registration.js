@@ -72,8 +72,18 @@ function Registration({ user }) {
       notify("Country is required.", "error");
       return;
     }
-    if (!form.dateOfBirth) {
-      notify("Date of birth is required.", "error");
+    const date = new Date(form.dateOfBirth);
+    if (isNaN(date.getTime())) {
+      notify("Please enter a valid date.", "error");
+      return;
+    }
+    const [year, month, day] = form.dateOfBirth.split("-");
+    const isRealDate =
+      date.getUTCFullYear() === parseInt(year) &&
+      date.getUTCMonth() + 1 === parseInt(month) &&
+      date.getUTCDate() === parseInt(day);
+    if (!isRealDate) {
+      notify("Invalid date: This day doesn't exist.", "error");
       return;
     }
     const birthDate = new Date(form.dateOfBirth);
@@ -105,7 +115,7 @@ function Registration({ user }) {
 
   return (
     <div className="registration-page">
-      <form onSubmit={handleSubmit} className="registration-form">
+      <form onSubmit={handleSubmit} className="registration-form" noValidate>
         <div className="reg-form-group">
           <label>Username:</label>
           <input name="username" value={form.username} onChange={handleChange} />
@@ -138,7 +148,7 @@ function Registration({ user }) {
         </div>
         <div className="reg-form-group">
           <label>Date of Birth:</label>
-          <input name="dateOfBirth" type="date" value={form.dateOfBirth} onChange={handleChange} noValidate/>
+          <input name="dateOfBirth" type="date" value={form.dateOfBirth} onChange={handleChange}/>
         </div>
         <button type="submit" className="reg-submit-btn">Register</button>
       </form>
