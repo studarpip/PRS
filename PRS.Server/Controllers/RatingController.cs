@@ -27,7 +27,7 @@ namespace PRS.Server.Controllers
                 return Unauthorized();
 
             var response = await _ratingService.CanRateAsync(userId, productId);
-            return Ok(response);
+            return response.Success ? Ok(response) : BadRequest(response);
         }
 
         [HttpPost]

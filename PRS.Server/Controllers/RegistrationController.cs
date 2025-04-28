@@ -20,11 +20,7 @@ namespace PRS.Server.Controllers
         public async Task<ActionResult<ServerResponse>> Register([FromBody] RegistrationRequest request)
         {
             var response = await _registrationService.RegisterAsync(request);
-
-            if (!response.Success)
-                return BadRequest(response);
-
-            return Ok(response);
+            return response.Success ? Ok(response) : BadRequest(response);
         }
     }
 }

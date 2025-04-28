@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import ProductFilters from "../components/ProductFilters";
+import Recommendations from "../components/Recommendations";
 import "../css/Home.css";
 import { useNotification } from "../contexts/NotificationContext";
 
@@ -65,7 +66,7 @@ function Home() {
       .catch(() => {
         window.location.href = "/login";
         notify("Session expired", "error");
-      })
+      });
 
     axios.get("/api/options/orderBy")
       .then(res => setOrderByOptions(res.data.data))
@@ -98,7 +99,7 @@ function Home() {
       })
       .catch(() => {
         window.location.href = "/login";
-        notify("Session expired", "error");;
+        notify("Session expired", "error");
       })
       .finally(() => setLoading(false));
   };
@@ -124,10 +125,6 @@ function Home() {
     navigate(`/home?${params.toString()}`);
   };
 
-  if (loading) {
-    return <div className="home-loading">Loading products...</div>;
-  }
-
   return (
     <div className="home-page">
       <ProductFilters
@@ -139,69 +136,77 @@ function Home() {
         isOpen={false}
       />
 
+      {loading ? (
+        <div className="home-loading">Loading products...</div>
+      ) : (
+        <>
+          {searched && (
+            products.length > 0 ? (
+              <>
+                <div className="home-product-list">
+                  {products.map(product => (
+                    <div
+                      key={product.id}
+                      onClick={() => navigate(`/product/${product.id}`)}
+                      className="home-product-card"
+                    >
+                      {product.image ? (
+                        <div className="home-product-card-image-wrapper">
+                          <img
+                            src={`data:image/jpeg;base64,${product.image}`}
+                            alt={product.name}
+                            className="home-product-card-image"
+                          />
+                        </div>
+                      ) : (
+                        <div className="home-product-card-noimage">No Image</div>
+                      )}
+                      <div className="home-product-card-name">{product.name}</div>
 
-      {!loading && searched && (
-        products.length > 0 ? (
-          <div className="home-product-list">
-            {products.map(product => (
-              <div
-                key={product.id}
-                onClick={() => navigate(`/product/${product.id}`)}
-                className="home-product-card"
-              >
-                {product.image ? (
-                  <div className="home-product-card-image-wrapper">
-                    <img
-                      src={`data:image/jpeg;base64,${product.image}`}
-                      alt={product.name}
-                      className="home-product-card-image"
-                    />
+                      <div className="home-product-card-rating">
+                        <div>
+                          {Array.from({ length: 5 }, (_, i) => (
+                            <span key={i}>
+                              {i < Math.round(product.rating || 0) ? '★' : '☆'}
+                            </span>
+                          ))}
+                        </div>
+                        <div className="home-product-card-rating-count">
+                          ({product.ratingCount || 0})
+                        </div>
+                      </div>
+
+                      <div className="home-product-card-price">
+                        {product.price}€
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {products.length > 0 && (
+                  <div className="home-pagination-controls">
+                    <button
+                      disabled={page === 1}
+                      onClick={() => handlePageChange(page - 1)}
+                    >
+                      Previous
+                    </button>
+                    <span>Page {page}</span>
+                    <button
+                      disabled={!hasMore}
+                      onClick={() => handlePageChange(page + 1)}
+                    >
+                      Next
+                    </button>
                   </div>
-                ) : (
-                  <div className="home-product-card-noimage">No Image</div>
                 )}
-                <div className="home-product-card-name">{product.name}</div>
-
-                <div className="home-product-card-rating">
-                  <div>
-                    {Array.from({ length: 5 }, (_, i) => (
-                      <span key={i}>
-                        {i < Math.round(product.rating || 0) ? '★' : '☆'}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="home-product-card-rating-count">
-                    ({product.ratingCount || 0})
-                  </div>
-                </div>
-
-                <div className="home-product-card-price">
-                  {product.price}€
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="home-no-products">No products found.</div>
-        )
-      )}
-
-      {!loading && searched && products.length > 0 && (
-        <div className="home-pagination-controls">
-          <button
-            disabled={page === 1}
-            onClick={() => handlePageChange(page - 1)}
-          >
-            Previous
-          </button>
-          <span>Page {page}</span>
-          <button
-            disabled={!hasMore}
-            onClick={() => handlePageChange(page + 1)}
-          >
-            Next
-          </button>
-        </div>
+              </>
+            ) : (
+              <div className="home-no-products">No products found.</div>
+            )
+          )}
+          <Recommendations context="home" />
+        </>
       )}
     </div>
   );

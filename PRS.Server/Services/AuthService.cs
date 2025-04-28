@@ -43,10 +43,7 @@ namespace PRS.Server.Services
             return ServerResponse.Ok();
         }
 
-        public async Task LogoutAsync(HttpContext httpContext)
-        {
-            await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        }
+        public async Task LogoutAsync(HttpContext httpContext) => await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
         public ServerResponse<CurrentUserResponse> GetCurrentUser(ClaimsPrincipal user)
         {

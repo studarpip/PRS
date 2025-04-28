@@ -11,7 +11,7 @@ namespace PRS.Model.Requests
         public double? RatingFrom { get; set; }
         public double? RatingTo { get; set; }
         public ProductOrderBy? OrderBy { get; set; }
-        public int? Page {  get; set; }
+        public int? Page { get; set; }
         public int? PageSize { get; set; }
     }
 }

@@ -3,8 +3,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { useCart } from "../contexts/CartContext";
 import { ArrowLeft } from "lucide-react";
-import "../css/Product.css";
 import { useNotification } from "../contexts/NotificationContext";
+import Recommendations from "../components/Recommendations";
+import "../css/Product.css";
 
 function Product() {
   const { notify } = useNotification();
@@ -193,6 +194,7 @@ function Product() {
           )}
         </div>
       </div>
+      <Recommendations context="product" />
     </div>
   );
 }

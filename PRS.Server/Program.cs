@@ -75,6 +75,8 @@ namespace PRS.Server
             builder.Services.AddScoped<IRatingRepository, RatingRepository>();
             builder.Services.AddScoped<ISettingsRepository, SettingsRepository>();
             builder.Services.AddScoped<ISettingsService, SettingsService>();
+            builder.Services.AddScoped<IRecommendationsRepository, RecommendationsRepository>();
+            builder.Services.AddScoped<IRecommendationsService, RecommendationsService>();
 
 
             var app = builder.Build();

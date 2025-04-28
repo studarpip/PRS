@@ -32,6 +32,7 @@ namespace PRS.Server.Controllers
         public async Task<ActionResult<ServerResponse>> Logout()
         {
             await _authService.LogoutAsync(HttpContext);
+
             return Ok(ServerResponse.Ok());
         }
 

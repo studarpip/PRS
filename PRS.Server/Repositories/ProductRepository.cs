@@ -69,7 +69,7 @@ namespace PRS.Server.Repositories
                 Price = node.Properties["price"].As<decimal>(),
                 Rating = node.Properties.ContainsKey("averageRating") ? node.Properties["averageRating"].As<decimal>() : null,
                 RatingCount = record.Keys.Contains("ratingCount") ? record["ratingCount"].As<int>() : null
-        };
+            };
         }
 
         public async Task<List<Product>> SearchAsync(ProductSearchRequest request, string? userId)
@@ -161,7 +161,7 @@ namespace PRS.Server.Repositories
                     Price = node.Properties["price"].As<decimal>(),
                     Rating = node.Properties.ContainsKey("averageRating") ? node.Properties["averageRating"].As<decimal>() : null,
                     RatingCount = record.Keys.Contains("ratingCount") ? record["ratingCount"].As<int>() : null
-            });
+                });
             });
 
             if (userId is not null && filtersUsed && request.Page == 1)

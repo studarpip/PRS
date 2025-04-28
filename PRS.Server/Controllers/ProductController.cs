@@ -28,10 +28,7 @@ namespace PRS.Server.Controllers
                 return Unauthorized();
 
             var response = await _productService.GetByIdAsync(id, userId);
-            if (!response.Success)
-                return NotFound(response);
-
-            return Ok(response);
+            return response.Success ? Ok(response) : BadRequest(response);
         }
 
         [HttpPost("search")]
@@ -42,7 +39,7 @@ namespace PRS.Server.Controllers
                 return Unauthorized();
 
             var response = await _productService.SearchAsync(request, userId);
-            return Ok(response);
+            return response.Success ? Ok(response) : BadRequest(response);
         }
     }
 }

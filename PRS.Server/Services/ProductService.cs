@@ -62,7 +62,7 @@ namespace PRS.Server.Services
                 Description = request.Description,
                 Image = request.Image,
                 Categories = request.Categories,
-                Price= request.Price,
+                Price = request.Price,
             };
 
             await _repository.UpdateAsync(product);

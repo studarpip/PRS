@@ -28,10 +28,7 @@ namespace PRS.Server.Controllers
                 return Unauthorized();
 
             var response = await _settingsService.GetSettingsAsync(userId);
-            if (!response.Success)
-                return BadRequest();
-
-            return Ok(response);
+            return response.Success ? Ok(response) : BadRequest(response);
         }
 
         [HttpPost]
@@ -42,10 +39,7 @@ namespace PRS.Server.Controllers
                 return Unauthorized();
 
             var response = await _settingsService.SaveSettingsAsync(userId, request);
-            if (!response.Success)
-                return BadRequest();
-
-            return Ok(response);
+            return response.Success ? Ok(response) : BadRequest(response);
         }
     }
 }

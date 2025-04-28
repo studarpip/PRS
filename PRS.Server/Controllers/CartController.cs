@@ -39,7 +39,7 @@ namespace PRS.Server.Controllers
                 return Unauthorized();
 
             var response = await _cartService.GetCartAsync(userId);
-            return Ok(response);
+            return response.Success ? Ok(response) : BadRequest(response);
         }
 
         [HttpPost("buy")]

@@ -3,8 +3,9 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../contexts/CartContext";
 import { Trash2 } from "lucide-react";
-import "../css/Cart.css";
 import { useNotification } from "../contexts/NotificationContext";
+import Recommendations from "../components/Recommendations";
+import "../css/Cart.css";
 
 function Cart() {
     const { notify } = useNotification();
@@ -139,6 +140,8 @@ function Cart() {
                     </div>
                 </div>
             </div>
+
+            <Recommendations context="cart" />
         </div>
     );
 }

@@ -19,7 +19,7 @@ function RecommendationSettings({ onClose }) {
       if (response.data.success) {
         setLocalSettings(response.data.data);
       }
-    } catch (err) {
+    } catch {
       onClose();
       window.location.href = "/login";
       notify("Session expired", "error");
@@ -32,13 +32,13 @@ function RecommendationSettings({ onClose }) {
     try {
       setSaving(true);
       await axios.post("/api/settings", localSettings);
-      notify("Settings created successfully!", "success");
-    } catch (err) {
+      notify("Settings saved successfully!", "success");
+      onClose();
+    } catch {
       window.location.href = "/login";
       notify("Session expired", "error");
     } finally {
       setSaving(false);
-      onClose();
     }
   };
 
@@ -48,6 +48,37 @@ function RecommendationSettings({ onClose }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!localSettings.useContent && !localSettings.useCollaborative) {
+      notify("At least one method must be selected", "error");
+      return;
+    }
+
+    if (localSettings.useContent) {
+      const contentWeight =
+        (localSettings.categoryWeight || 0) +
+        (localSettings.priceWeight || 0);
+
+      if (Math.abs(contentWeight - 1) > 0.01) {
+        notify("Content-based weights must add up to 1", "error");
+        return;
+      }
+    }
+
+    if (localSettings.useCollaborative) {
+      const collaborativeWeight =
+        (localSettings.browseWeight || 0) +
+        (localSettings.viewWeight || 0) +
+        (localSettings.cartWeight || 0) +
+        (localSettings.purchaseWeight || 0) +
+        (localSettings.ratingWeight || 0);
+
+      if (Math.abs(collaborativeWeight - 1) > 0.01) {
+        notify("Collaborative filtering weights must add up to 1", "error");
+        return;
+      }
+    }
+
     saveSettings();
   };
 
@@ -55,12 +86,21 @@ function RecommendationSettings({ onClose }) {
     return (
       <div className="rec-edit">
         <h3>Recommendation Settings</h3>
-        <div className="rec-loading-content">
-          Loading settings...
-        </div>
+        <div className="rec-loading-content">Loading settings...</div>
       </div>
     );
   }
+
+  const contentWeightSum =
+    (localSettings.categoryWeight || 0) +
+    (localSettings.priceWeight || 0);
+
+  const collaborativeWeightSum =
+    (localSettings.browseWeight || 0) +
+    (localSettings.viewWeight || 0) +
+    (localSettings.cartWeight || 0) +
+    (localSettings.purchaseWeight || 0) +
+    (localSettings.ratingWeight || 0);
 
   return (
     <div className="rec-edit">
@@ -78,18 +118,12 @@ function RecommendationSettings({ onClose }) {
             </label>
           </div>
 
-          <div className="rec-form-group rec-form-span-2">
-            <label>
-              <input
-                type="checkbox"
-                checked={localSettings.useCollaborative}
-                onChange={e => handleChange("useCollaborative", e.target.checked)}
-              /> Use Collaborative Filtering
-            </label>
-          </div>
-
           {localSettings.useContent && (
             <>
+              <div className="rec-form-group rec-form-span-2">
+                <strong>Content-based Weights (Sum: {contentWeightSum.toFixed(2)})</strong>
+              </div>
+
               <div className="rec-form-group">
                 <label>Category Weight:</label>
                 <input
@@ -112,8 +146,22 @@ function RecommendationSettings({ onClose }) {
             </>
           )}
 
+          <div className="rec-form-group rec-form-span-2">
+            <label>
+              <input
+                type="checkbox"
+                checked={localSettings.useCollaborative}
+                onChange={e => handleChange("useCollaborative", e.target.checked)}
+              /> Use Collaborative Filtering
+            </label>
+          </div>
+
           {localSettings.useCollaborative && (
             <>
+              <div className="rec-form-group rec-form-span-2">
+                <strong>Collaborative Weights (Sum: {collaborativeWeightSum.toFixed(2)})</strong>
+              </div>
+
               <div className="rec-form-group">
                 <label>Browse Weight:</label>
                 <input
@@ -165,7 +213,6 @@ function RecommendationSettings({ onClose }) {
               </div>
             </>
           )}
-
         </div>
 
         <div className="rec-form-actions">

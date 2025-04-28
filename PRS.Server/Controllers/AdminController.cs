@@ -23,27 +23,21 @@ namespace PRS.Server.Controllers
         public async Task<ActionResult<ServerResponse<List<Product>>>> Search([FromBody] ProductSearchRequest request)
         {
             var response = await _productService.SearchAsync(request, null);
-            return Ok(response);
+            return response.Success ? Ok(response) : BadRequest(response);
         }
 
         [HttpPost]
         public async Task<ActionResult<ServerResponse>> Create([FromBody] ProductCreateEditRequest request)
         {
             var response = await _productService.CreateAsync(request);
-            if (!response.Success)
-                return BadRequest(response);
-
-            return Ok(response);
+            return response.Success ? Ok(response) : BadRequest(response);
         }
 
         [HttpPut("{id}")]
         public async Task<ActionResult<ServerResponse>> Edit(Guid id, [FromBody] ProductCreateEditRequest request)
         {
             var response = await _productService.UpdateAsync(id, request);
-            if (!response.Success)
-                return BadRequest(response);
-
-            return Ok(response);
+            return response.Success ? Ok(response) : BadRequest(response);
         }
 
 
@@ -51,10 +45,7 @@ namespace PRS.Server.Controllers
         public async Task<ActionResult<ServerResponse>> Delete(Guid id)
         {
             var response = await _productService.DeleteAsync(id);
-            if (!response.Success)
-                return BadRequest(response);
-
-            return Ok(response);
+            return response.Success ? Ok(response) : BadRequest(response);
         }
     }
 }
