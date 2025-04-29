@@ -33,7 +33,7 @@ function ProductFilters({ filters, setFilters, categories, orderByOptions, onSea
       notify("Price From cannot be higher than Price To", "error");
       return;
     }
-  
+
     if (filters.ratingFrom && (parseFloat(filters.ratingFrom) < 1 || parseFloat(filters.ratingFrom) > 5)) {
       notify("Rating From must be between 1 and 5", "error");
       return;
@@ -46,7 +46,7 @@ function ProductFilters({ filters, setFilters, categories, orderByOptions, onSea
       notify("Rating From cannot be higher than Rating To", "error");
       return;
     }
-  
+
     onSearch();
   };
 

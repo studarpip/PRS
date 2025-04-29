@@ -33,9 +33,9 @@ function MultiSelectDropdown({ options, selectedValues, onChange, placeholder })
       >
         {selectedValues.length > 0
           ? options
-              .filter(opt => selectedValues.includes(opt.value))
-              .map(opt => opt.label)
-              .join(", ")
+            .filter(opt => selectedValues.includes(opt.value))
+            .map(opt => opt.label)
+            .join(", ")
           : placeholder || "Select..."}
       </div>
 

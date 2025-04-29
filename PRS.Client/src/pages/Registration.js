@@ -148,7 +148,7 @@ function Registration({ user }) {
         </div>
         <div className="reg-form-group">
           <label>Date of Birth:</label>
-          <input name="dateOfBirth" type="date" value={form.dateOfBirth} onChange={handleChange}/>
+          <input name="dateOfBirth" type="date" value={form.dateOfBirth} onChange={handleChange} />
         </div>
         <button type="submit" className="reg-submit-btn">Register</button>
       </form>
