@@ -2,7 +2,6 @@
 {
     public class RecommendationSettings
     {
-        public Guid UserId { get; set; }
         public bool UseContent { get; set; }
         public bool UseCollaborative { get; set; }
         public double CategoryWeight { get; set; }

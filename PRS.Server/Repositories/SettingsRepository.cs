@@ -20,7 +20,7 @@ namespace PRS.Server.Repositories
             try
             {
                 var result = await session.RunAsync(@"
-                    MATCH (s:Setting {userId: $userId})
+                    MATCH (u:User {id: $userId})-[:HAS_SETTINGS]->(s:Setting)
                     RETURN 
                         s.useContent AS useContent,
                         s.useCollaborative AS useCollaborative,
@@ -46,8 +46,7 @@ namespace PRS.Server.Repositories
                     ViewWeight = record["viewWeight"].As<double>(),
                     CartWeight = record["cartWeight"].As<double>(),
                     PurchaseWeight = record["purchaseWeight"].As<double>(),
-                    RatingWeight = record["ratingWeight"].As<double>(),
-                    UserId = Guid.Parse(userId)
+                    RatingWeight = record["ratingWeight"].As<double>()
                 };
             }
             finally
@@ -64,7 +63,8 @@ namespace PRS.Server.Repositories
                 await session.ExecuteWriteAsync(async tx =>
                 {
                     await tx.RunAsync(@"
-                        MERGE (s:Setting {userId: $userId})
+                        MATCH (u:User {id: $userId})
+                        MERGE (u)-[:HAS_SETTINGS]->(s:Setting)
                         SET s.useContent = $useContent,
                             s.useCollaborative = $useCollaborative,
                             s.categoryWeight = $categoryWeight,
@@ -94,5 +94,6 @@ namespace PRS.Server.Repositories
                 await session.CloseAsync();
             }
         }
+
     }
 }

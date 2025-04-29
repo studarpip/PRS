@@ -100,16 +100,18 @@ namespace PRS.Server.Repositories
                 };
 
                 await tx.RunAsync(@"
-                    MERGE (s:Setting {userId: $userId})
-                    SET s.useContent = $useContent,
-                        s.useCollaborative = $useCollaborative,
-                        s.categoryWeight = $categoryWeight,
-                        s.priceWeight = $priceWeight,
-                        s.browseWeight = $browseWeight,
-                        s.viewWeight = $viewWeight,
-                        s.cartWeight = $cartWeight,
-                        s.purchaseWeight = $purchaseWeight,
-                        s.ratingWeight = $ratingWeight
+                    MATCH (u:User { id: $userId })
+                    CREATE (u)-[:HAS_SETTINGS]->(s:Setting {
+                        useContent: $useContent,
+                        useCollaborative: $useCollaborative,
+                        categoryWeight: $categoryWeight,
+                        priceWeight: $priceWeight,
+                        browseWeight: $browseWeight,
+                        viewWeight: $viewWeight,
+                        cartWeight: $cartWeight,
+                        purchaseWeight: $purchaseWeight,
+                        ratingWeight: $ratingWeight
+                    })
                 ", new
                 {
                     userId = user.Id.ToString(),
@@ -136,6 +138,5 @@ namespace PRS.Server.Repositories
                 await session.CloseAsync();
             }
         }
-
     }
 }

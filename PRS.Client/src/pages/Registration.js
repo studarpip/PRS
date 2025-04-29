@@ -16,6 +16,7 @@ function Registration({ user }) {
     country: "",
     dateOfBirth: ""
   });
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,6 +47,11 @@ function Registration({ user }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (loading)
+      return;
+
+    setLoading(true);
 
     if (!form.username.trim()) {
       notify("Username is required.", "error");
@@ -110,6 +116,8 @@ function Registration({ user }) {
       navigate("/login");
     } catch (err) {
       notify(err.response?.data?.errorMessage || "Registration failed.", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -150,7 +158,7 @@ function Registration({ user }) {
           <label>Date of Birth:</label>
           <input name="dateOfBirth" type="date" value={form.dateOfBirth} onChange={handleChange} />
         </div>
-        <button type="submit" className="reg-submit-btn">Register</button>
+        <button type="submit" className="reg-submit-btn" disabled={loading}>{loading ? "Registering..." : "Register"}</button>
       </form>
     </div>
   );
