@@ -17,7 +17,6 @@ namespace PRS.Server.Repositories
         {
             await using var session = _driver.AsyncSession();
             var saleId = Guid.NewGuid().ToString();
-            var timestamp = DateTime.UtcNow;
 
             await session.ExecuteWriteAsync(async tx =>
             {

@@ -21,9 +21,6 @@ public class CartService : ICartService
         if (items.Count == 0)
             throw new CartIsEmptyException();
 
-        var saleId = Guid.NewGuid();
-        var timestamp = DateTime.UtcNow;
-
         await _cartRepository.BuyCartAsync(userId, items.Select(i => i.ProductId).ToList());
         return ServerResponse.Ok();
     }
