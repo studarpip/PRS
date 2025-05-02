@@ -82,8 +82,9 @@ function App() {
 
   const handleLogout = async () => {
     await logout();
-    clearCartCount();
     setUser(null);
+    navigate("/login");
+    clearCartCount();
   };
 
   if (checkingAuth) return <p>Loading...</p>;
@@ -158,13 +159,84 @@ function App() {
 
       <div className="app-container">
         <Routes>
-          <Route path="/" element={user ? <Navigate to={isAdmin(user) ? "/admin" : "/home"} /> : <Navigate to="/login" />} />
-          <Route path="/home" element={!isAdmin(user) && user ? <Home /> : <Navigate to="/unauthorized" />} />
-          <Route path="/cart" element={!isAdmin(user) && user ? <Cart /> : <Navigate to="/unauthorized" />} />
-          <Route path="/admin" element={isAdmin(user) ? <Admin /> : <Navigate to="/unauthorized" />} />
-          <Route path="/product/:id" element={!isAdmin(user) && user ? <Product /> : <Navigate to="/unauthorized" />} />
-          <Route path="/login" element={<Login onLogin={handleLogin} user={user} />} />
-          <Route path="/register" element={<Registration user={user} />} />
+          <Route
+            path="/"
+            element={
+              user ? (
+                <Navigate to={isAdmin(user) ? "/admin" : "/home"} />
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
+          <Route
+            path="/home"
+            element={
+              !user ? (
+                <Navigate to="/login" />
+              ) : isAdmin(user) ? (
+                <Navigate to="/unauthorized" />
+              ) : (
+                <Home />
+              )
+            }
+          />
+          <Route
+            path="/cart"
+            element={
+              !user ? (
+                <Navigate to="/login" />
+              ) : isAdmin(user) ? (
+                <Navigate to="/unauthorized" />
+              ) : (
+                <Cart />
+              )
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              !user ? (
+                <Navigate to="/login" />
+              ) : isAdmin(user) ? (
+                <Admin />
+              ) : (
+                <Navigate to="/unauthorized" />
+              )
+            }
+          />
+          <Route
+            path="/product/:id"
+            element={
+              !user ? (
+                <Navigate to="/login" />
+              ) : isAdmin(user) ? (
+                <Navigate to="/unauthorized" />
+              ) : (
+                <Product />
+              )
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              user ? (
+                <Navigate to={isAdmin(user) ? "/admin" : "/home"} />
+              ) : (
+                <Login onLogin={handleLogin} user={user} />
+              )
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              user ? (
+                <Navigate to={isAdmin(user) ? "/admin" : "/home"} />
+              ) : (
+                <Registration user={user} />
+              )
+            }
+          />
           <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
