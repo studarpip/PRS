@@ -10,7 +10,7 @@ namespace PRS.Server.Controllers
 {
     [ApiController]
     [Route("api/products")]
-    [Authorize]
+    [Authorize(Roles = "User")]
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;

@@ -9,7 +9,7 @@ namespace PRS.Server.Controllers
 {
     [ApiController]
     [Route("api/recommendations")]
-    [Authorize]
+    [Authorize(Roles = "User")]
     public class RecommendationsController : ControllerBase
     {
         private readonly IRecommendationsService _service;

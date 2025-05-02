@@ -10,7 +10,7 @@ namespace PRS.Server.Controllers
 {
     [ApiController]
     [Route("api/settings")]
-    [Authorize]
+    [Authorize(Roles = "User")]
     public class SettingsController : ControllerBase
     {
         private readonly ISettingsService _settingsService;

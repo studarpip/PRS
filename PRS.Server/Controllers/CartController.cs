@@ -10,7 +10,7 @@ namespace PRS.Server.Controllers
 {
     [ApiController]
     [Route("api/cart")]
-    [Authorize]
+    [Authorize(Roles = "User")]
     public class CartController : ControllerBase
     {
         private readonly ICartService _cartService;

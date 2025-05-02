@@ -8,7 +8,6 @@ import {
   useLocation,
   useNavigate,
 } from "react-router-dom";
-import Welcome from "./pages/Welcome";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Registration from "./pages/Registration";
@@ -22,7 +21,14 @@ import RecommendationSettings from "./components/RecommendationSettings";
 import { login, logout, getCurrentUser, isAdmin } from "./api/auth";
 import { useCart, CartProvider } from "./contexts/CartContext";
 import { NotificationProvider } from "./contexts/NotificationContext";
-import { Home as HomeIcon, LogIn, LogOut, ShoppingCart, UserCog, Settings as SettingsIcon } from "lucide-react";
+import {
+  Home as HomeIcon,
+  LogIn,
+  LogOut,
+  ShoppingCart,
+  UserCog,
+  Settings as SettingsIcon,
+} from "lucide-react";
 import "./css/App.css";
 
 function App() {
@@ -64,7 +70,6 @@ function App() {
 
   const handleLogin = async (username, password) => {
     const result = await login(username, password);
-
     if (result.success) {
       const user = await getCurrentUser();
       fetchCartCount();
@@ -87,17 +92,10 @@ function App() {
     <>
       <nav className="app-nav">
         <div className="app-nav-left">
-          {user ? (
+          {user && !isAdmin(user) && (
             <Link
               to="/home"
               className={location.pathname.startsWith("/home") ? "active-link" : ""}
-            >
-              <HomeIcon size={18} /> Home
-            </Link>
-          ) : (
-            <Link
-              to="/"
-              className={location.pathname === "/" ? "active-link" : ""}
             >
               <HomeIcon size={18} /> Home
             </Link>
@@ -114,7 +112,7 @@ function App() {
         </div>
 
         <div className="app-nav-right">
-          {user && (
+          {user && !isAdmin(user) && (
             <>
               <div
                 className="app-cart-link-wrapper"
@@ -160,13 +158,13 @@ function App() {
 
       <div className="app-container">
         <Routes>
-          <Route path="/" element={user ? <Navigate to="/home" /> : <Welcome />} />
-          <Route path="/home" element={user ? <Home /> : <Navigate to="/login" />} />
+          <Route path="/" element={user ? <Navigate to={isAdmin(user) ? "/admin" : "/home"} /> : <Navigate to="/login" />} />
+          <Route path="/home" element={!isAdmin(user) && user ? <Home /> : <Navigate to="/unauthorized" />} />
+          <Route path="/cart" element={!isAdmin(user) && user ? <Cart /> : <Navigate to="/unauthorized" />} />
+          <Route path="/admin" element={isAdmin(user) ? <Admin /> : <Navigate to="/unauthorized" />} />
+          <Route path="/product/:id" element={!isAdmin(user) && user ? <Product /> : <Navigate to="/unauthorized" />} />
           <Route path="/login" element={<Login onLogin={handleLogin} user={user} />} />
           <Route path="/register" element={<Registration user={user} />} />
-          <Route path="/admin" element={isAdmin(user) ? <Admin /> : <Navigate to="/unauthorized" />} />
-          <Route path="/product/:id" element={user ? <Product /> : <Navigate to="/login" />} />
-          <Route path="/cart" element={user ? <Cart /> : <Navigate to="/login" />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

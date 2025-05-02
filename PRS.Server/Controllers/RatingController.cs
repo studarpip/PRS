@@ -9,7 +9,7 @@ namespace PRS.Server.Controllers
 {
     [ApiController]
     [Route("api/rating")]
-    [Authorize]
+    [Authorize(Roles = "User")]
     public class RatingController : ControllerBase
     {
         private readonly IRatingService _ratingService;
