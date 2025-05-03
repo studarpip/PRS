@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PRS.Server", "PRS.Server\PR
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PRS.Model", "PRS.Model\PRS.Model.csproj", "{7D3680E3-592A-495B-A762-D87CC4A15765}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PRS.Test", "PRS.Test\PRS.Test.csproj", "{6FDE3780-DAF1-4FF4-94BB-AD475A04E812}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{7D3680E3-592A-495B-A762-D87CC4A15765}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D3680E3-592A-495B-A762-D87CC4A15765}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D3680E3-592A-495B-A762-D87CC4A15765}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6FDE3780-DAF1-4FF4-94BB-AD475A04E812}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FDE3780-DAF1-4FF4-94BB-AD475A04E812}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FDE3780-DAF1-4FF4-94BB-AD475A04E812}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FDE3780-DAF1-4FF4-94BB-AD475A04E812}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
