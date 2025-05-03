@@ -79,7 +79,7 @@ namespace PRS.Server.Repositories
             var filters = new List<string>();
 
             if (!string.IsNullOrWhiteSpace(request.Input))
-                filters.Add("p.name CONTAINS $input OR p.description CONTAINS $input");
+                filters.Add("lower(p.name) CONTAINS lower($input) OR lower(p.description) CONTAINS lower($input)");
 
             if (request.PriceFrom.HasValue)
                 filters.Add("p.price >= $priceFrom");
@@ -102,13 +102,15 @@ namespace PRS.Server.Repositories
 
             filters.Add("(p.isDeleted IS NULL OR p.isDeleted = false)");
 
-            string? orderByClause = request.OrderBy switch
+            string orderByClause = request.OrderBy switch
             {
                 ProductOrderBy.PriceAsc => "ORDER BY p.price ASC",
                 ProductOrderBy.PriceDesc => "ORDER BY p.price DESC",
                 ProductOrderBy.RatingAsc => "ORDER BY coalesce(p.averageRating, 0) ASC",
                 ProductOrderBy.RatingDesc => "ORDER BY coalesce(p.averageRating, 0) DESC",
-                _ => null
+                ProductOrderBy.Newest => "ORDER BY id(p) DESC",
+                ProductOrderBy.Oldest => "ORDER BY id(p) ASC",
+                _ => "ORDER BY id(p) DESC"
             };
 
             string query = $@"
@@ -119,11 +121,8 @@ namespace PRS.Server.Repositories
                 WHERE {string.Join(" AND ", filters)}
                 {orderByClause}
                 RETURN p, categories, ratingCount
+                SKIP $skip LIMIT $limit
             ";
-
-
-            if (userId is not null)
-                query += "SKIP $skip LIMIT $limit";
 
             var result = await session.RunAsync(query, new
             {

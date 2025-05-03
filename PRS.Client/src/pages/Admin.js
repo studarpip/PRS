@@ -12,7 +12,9 @@ function Admin() {
     const [loading, setLoading] = useState(true);
     const [creating, setCreating] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
-
+    const [page, setPage] = useState(1);
+    const pageSize = 20;
+    const [hasMore, setHasMore] = useState(false);
     const [categories, setCategories] = useState([]);
     const [orderByOptions, setOrderByOptions] = useState([]);
 
@@ -27,7 +29,7 @@ function Admin() {
     });
 
     useEffect(() => {
-        fetchProducts();
+        fetchProducts(1);
         axios.get("/api/options/categories")
             .then(res => setCategories(res.data.data))
             .catch(() => {
@@ -43,8 +45,9 @@ function Admin() {
             });
     }, []);
 
-    const fetchProducts = () => {
+    const fetchProducts = (customPage = page) => {
         setLoading(true);
+
         const searchRequest = {
             input: filters.input || null,
             categories: filters.selectedCategories.length ? filters.selectedCategories : null,
@@ -53,10 +56,15 @@ function Admin() {
             ratingFrom: filters.ratingFrom ? parseFloat(filters.ratingFrom) : null,
             ratingTo: filters.ratingTo ? parseFloat(filters.ratingTo) : null,
             orderBy: filters.orderBy ? parseInt(filters.orderBy, 10) : null,
+            page: customPage,
+            pageSize: pageSize,
         };
 
         axios.post("/api/admin/products/search", searchRequest)
-            .then(res => setProducts(res.data.data))
+            .then(res => {
+                setProducts(res.data.data);
+                setHasMore(res.data.data.length === pageSize);
+            })
             .catch(() => {
                 window.location.href = "/login";
                 notify("Session expired", "error");
@@ -69,8 +77,14 @@ function Admin() {
         setCreating(true);
     };
 
+    const handlePageChange = (newPage) => {
+        setPage(newPage);
+        fetchProducts(newPage);
+    };
+
     const handleDelete = (id) => {
-        if (!window.confirm("Are you sure you want to delete this product?")) return;
+        if (!window.confirm("Are you sure you want to delete this product?"))
+            return;
 
         axios.delete(`/api/admin/products/${id}`)
             .then(() => fetchProducts())
@@ -91,7 +105,10 @@ function Admin() {
                 setFilters={setFilters}
                 categories={categories}
                 orderByOptions={orderByOptions}
-                onSearch={fetchProducts}
+                onSearch={() => {
+                    setPage(1);
+                    fetchProducts(1);
+                }}
                 isOpen={false}
             />
 
@@ -147,6 +164,23 @@ function Admin() {
                             </div>
                         </div>
                     ))
+                )}
+                {products.length > 0 && (
+                    <div className="admin-pagination-controls">
+                        <button
+                            disabled={page === 1}
+                            onClick={() => handlePageChange(page - 1)}
+                        >
+                            Previous
+                        </button>
+                        <span>Page {page}</span>
+                        <button
+                            disabled={!hasMore}
+                            onClick={() => handlePageChange(page + 1)}
+                        >
+                            Next
+                        </button>
+                    </div>
                 )}
             </div>
 

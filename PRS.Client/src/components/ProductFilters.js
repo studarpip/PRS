@@ -62,8 +62,10 @@ function ProductFilters({ filters, setFilters, categories, orderByOptions, onSea
         />
         <button className="search-button" onClick={handleSearch}>
           <Search size={18} />
+          Search
         </button>
         <button className="toggle-filters" onClick={() => setOpen(!open)}>
+          {open ? 'Hide Filters' : 'Show Filters'}
           {open ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
         </button>
       </div>

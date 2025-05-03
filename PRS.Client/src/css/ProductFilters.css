@@ -1,17 +1,17 @@
 .product-filters {
-  margin-bottom: 20px;
+  max-width: 900px;
+  margin: 0 auto 20px auto;
   border: 1px solid #ccc;
   border-radius: 8px;
   background-color: white;
-  max-width: 900px;
-  margin: 0 auto 20px auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
 .filter-toolbar {
   display: flex;
-  padding: 15px;
-  gap: 10px;
   align-items: center;
+  gap: 10px;
+  padding: 12px 15px;
   background-color: #eee;
   border-radius: 8px 8px 0 0;
 }
@@ -20,19 +20,29 @@
   flex: 1;
   padding: 8px 12px;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 0.95rem;
+}
+
+.search-button,
+.toggle-filters {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  padding: 0 14px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+  gap: 6px;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .search-button {
   background-color: #FFD814;
   border: 1px solid #FCD200;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 0.95rem;
-  transition: background-color 0.2s, transform 0.2s;
 }
 
 .search-button:hover {
@@ -42,13 +52,7 @@
 
 .toggle-filters {
   background-color: #ccc;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 0.95rem;
-  transition: background-color 0.2s, transform 0.2s;
+  min-width: 150px;
 }
 
 .toggle-filters:hover {
@@ -58,6 +62,10 @@
 
 .filter-body {
   padding: 20px;
+  background-color: #f9f9f9;
+  border-top: 1px solid #ccc;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03);
 }
 
 .filter-group,
@@ -79,7 +87,7 @@
 .filter-row input,
 .filter-group select {
   width: 100%;
-  padding: 6px 10px;
+  padding: 7px 10px;
   margin-top: 5px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -95,21 +103,15 @@
 .filter-actions button {
   padding: 8px 16px;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   font-weight: bold;
   font-size: 1rem;
   cursor: pointer;
+  background-color: #ccc;
   transition: background-color 0.2s, transform 0.2s;
 }
 
 .filter-actions button:hover {
-  transform: translateY(-2px);
-}
-
-.filter-actions button:last-child {
-  background-color: #ccc;
-}
-
-.filter-actions button:last-child:hover {
   background-color: #bbb;
+  transform: translateY(-2px);
 }
