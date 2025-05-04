@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "../api/axios";
 import "../css/Recommendations.css";
 import { useNotification } from "../contexts/NotificationContext";
 
 function Recommendations({ context }) {
   const { notify } = useNotification();
-  const navigate = useNavigate();
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -43,7 +41,7 @@ function Recommendations({ context }) {
         {recommendations.map(product => (
           <div
             key={product.id}
-            onClick={() => navigate(`/product/${product.id}`)}
+            onClick={() => window.location.href = `/product/${product.id}`}
             className="recom-product-card"
           >
             {product.image ? (

@@ -16,7 +16,7 @@ namespace PRS.Server.Repositories
             _driver = driver;
         }
 
-        public async Task<Product?> GetByIdAsync(Guid itemId, string userId)
+        public async Task<Product?> GetByIdAsync(Guid itemId, string? userId)
         {
             await using var session = _driver.AsyncSession();
 
@@ -25,7 +25,7 @@ namespace PRS.Server.Repositories
                 WHERE coalesce(p.isDeleted, false) = false
                 OPTIONAL MATCH (p)-[:IN_CATEGORY]->(c:Category)
                 OPTIONAL MATCH (:User)-[r:RATED]->(p)
-                WITH p, collect(c.name) AS categories, count(r) AS ratingCount
+                WITH p, collect(c.name) AS categories, count(DISTINCT r) AS ratingCount
                 RETURN p, categories, ratingCount
             ", new { id = itemId.ToString() });
 
@@ -46,18 +46,21 @@ namespace PRS.Server.Repositories
                     categories.Add(parsed);
             }
 
-            await session.ExecuteWriteAsync(async tx =>
+            if (!string.IsNullOrWhiteSpace(userId))
             {
-                await tx.RunAsync(@"
-                    MATCH (u:User { id: $userId }), (p:Product { id: $productId })
-                    MERGE (u)-[r:VIEWED]->(p)
-                    SET r.timestamp = datetime()
-                ", new
+                await session.ExecuteWriteAsync(async tx =>
                 {
-                    userId,
-                    productId = itemId.ToString()
+                    await tx.RunAsync(@"
+                        MATCH (u:User { id: $userId }), (p:Product { id: $productId })
+                        CREATE (u)-[:VIEWED { timestamp: datetime() }]->(p)
+                    ", new
+                    {
+                        userId,
+                        productId = itemId.ToString()
+                    });
                 });
-            });
+
+            }
 
             return new Product
             {
@@ -93,36 +96,60 @@ namespace PRS.Server.Repositories
             if (request.RatingTo.HasValue)
                 filters.Add("p.averageRating <= $ratingTo");
 
-            if (request.Categories != null && request.Categories.Any())
-                filters.Add("any(cat IN $categories WHERE cat IN categories)");
+            var hasCategoryFilter = request.Categories != null && request.Categories.Any();
 
-            var filtersUsed = false;
-            if (filters.Any())
-                filtersUsed = true;
+            if (hasCategoryFilter)
+                filters.Add("ALL(cat IN $categories WHERE cat IN categories)");
 
             filters.Add("(p.isDeleted IS NULL OR p.isDeleted = false)");
 
-            string orderByClause = request.OrderBy switch
+            string? baseOrderBy = request.OrderBy switch
             {
-                ProductOrderBy.PriceAsc => "ORDER BY p.price ASC",
-                ProductOrderBy.PriceDesc => "ORDER BY p.price DESC",
-                ProductOrderBy.RatingAsc => "ORDER BY coalesce(p.averageRating, 0) ASC",
-                ProductOrderBy.RatingDesc => "ORDER BY coalesce(p.averageRating, 0) DESC",
-                ProductOrderBy.Newest => "ORDER BY id(p) DESC",
-                ProductOrderBy.Oldest => "ORDER BY id(p) ASC",
-                _ => "ORDER BY id(p) DESC"
+                ProductOrderBy.PriceAsc => "p.price ASC",
+                ProductOrderBy.PriceDesc => "p.price DESC",
+                ProductOrderBy.RatingAsc => "coalesce(p.averageRating, 0) ASC",
+                ProductOrderBy.RatingDesc => "coalesce(p.averageRating, 0) DESC",
+                ProductOrderBy.Newest => "id(p) DESC",
+                ProductOrderBy.Oldest => "id(p) ASC",
+                _ => null
             };
 
-            string query = $@"
-                MATCH (p:Product)
-                OPTIONAL MATCH (p)-[:IN_CATEGORY]->(c:Category)
-                OPTIONAL MATCH (:User)-[r:RATED]->(p)
-                WITH p, collect(c.name) AS categories, count(r) AS ratingCount
-                WHERE {string.Join(" AND ", filters)}
-                {orderByClause}
-                RETURN p, categories, ratingCount
-                SKIP $skip LIMIT $limit
-            ";
+            string query;
+
+            if (hasCategoryFilter && baseOrderBy == null)
+            {
+                query = $@"
+                    MATCH (p:Product)
+                    OPTIONAL MATCH (p)-[:IN_CATEGORY]->(c:Category)
+                    OPTIONAL MATCH (:User)-[r:RATED]->(p)
+                    WITH p, collect(c.name) AS categories, count(DISTINCT r) AS ratingCount
+                    WITH p, categories, ratingCount,
+                         size([cat IN $categories WHERE cat IN categories]) AS matchedCategoryCount,
+                         size(categories) AS categoryCount,
+                         CASE 
+                             WHEN size([cat IN $categories WHERE cat IN categories]) = size($categories)
+                              AND size(categories) = size($categories)
+                             THEN true ELSE false 
+                         END AS exactCategoryMatch
+                    WHERE {string.Join(" AND ", filters)}
+                    ORDER BY exactCategoryMatch DESC, matchedCategoryCount DESC
+                    RETURN p, categories, ratingCount
+                    SKIP $skip LIMIT $limit
+                ";
+            }
+            else
+            {
+                query = $@"
+                    MATCH (p:Product)
+                    OPTIONAL MATCH (p)-[:IN_CATEGORY]->(c:Category)
+                    OPTIONAL MATCH (:User)-[r:RATED]->(p)
+                    WITH p, collect(c.name) AS categories, count(DISTINCT r) AS ratingCount
+                    WHERE {string.Join(" AND ", filters)}
+                    ORDER BY {baseOrderBy ?? "id(p) DESC"}
+                    RETURN p, categories, ratingCount
+                    SKIP $skip LIMIT $limit
+                ";
+            }
 
             var result = await session.RunAsync(query, new
             {
@@ -131,7 +158,9 @@ namespace PRS.Server.Repositories
                 priceTo = request.PriceTo,
                 ratingFrom = request.RatingFrom,
                 ratingTo = request.RatingTo,
-                categories = request.Categories?.Select(c => c.ToString()).ToList() ?? new List<string>(),
+                categories = hasCategoryFilter
+                    ? request.Categories!.Select(c => c.ToString()).ToList()
+                    : new List<string>(),
                 skip = (request.Page - 1) * request.PageSize,
                 limit = request.PageSize
             });
@@ -163,7 +192,7 @@ namespace PRS.Server.Repositories
                 });
             });
 
-            if (userId is not null && filtersUsed && request.Page == 1)
+            if (userId is not null && hasCategoryFilter && request.Page == 1)
             {
                 var browsedProducts = products.Take(1).ToList();
                 await session.ExecuteWriteAsync(async tx =>
@@ -172,8 +201,7 @@ namespace PRS.Server.Repositories
                     {
                         await tx.RunAsync(@"
                             MATCH (u:User { id: $userId }), (p:Product { id: $productId })
-                            MERGE (u)-[r:BROWSED]->(p)
-                            SET r.timestamp = datetime()
+                            CREATE (u)-[:BROWSED { timestamp: datetime() }]->(p)
                         ", new
                         {
                             userId,

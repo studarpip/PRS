@@ -30,7 +30,8 @@ namespace PRS.Server.Repositories
                         s.viewWeight AS viewWeight,
                         s.cartWeight AS cartWeight,
                         s.purchaseWeight AS purchaseWeight,
-                        s.ratingWeight AS ratingWeight
+                        s.ratingWeight AS ratingWeight,
+                        s.avgRatingWeight AS avgRatingWeight
                 ", new { userId });
 
                 var records = await result.ToListAsync();
@@ -46,7 +47,8 @@ namespace PRS.Server.Repositories
                     ViewWeight = record["viewWeight"].As<double>(),
                     CartWeight = record["cartWeight"].As<double>(),
                     PurchaseWeight = record["purchaseWeight"].As<double>(),
-                    RatingWeight = record["ratingWeight"].As<double>()
+                    RatingWeight = record["ratingWeight"].As<double>(),
+                    AvgRatingWeight = record["avgRatingWeight"].As<double>()
                 };
             }
             finally
@@ -73,7 +75,8 @@ namespace PRS.Server.Repositories
                             s.viewWeight = $viewWeight,
                             s.cartWeight = $cartWeight,
                             s.purchaseWeight = $purchaseWeight,
-                            s.ratingWeight = $ratingWeight
+                            s.ratingWeight = $ratingWeight,
+                            s.avgRatingWeight = $avgRatingWeight
                     ", new
                     {
                         userId,
@@ -85,7 +88,8 @@ namespace PRS.Server.Repositories
                         viewWeight = settings.ViewWeight,
                         cartWeight = settings.CartWeight,
                         purchaseWeight = settings.PurchaseWeight,
-                        ratingWeight = settings.RatingWeight
+                        ratingWeight = settings.RatingWeight,
+                        avgRatingWeight = settings.AvgRatingWeight
                     });
                 });
             }

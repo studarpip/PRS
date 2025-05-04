@@ -96,7 +96,8 @@ namespace PRS.Server.Repositories
                     ViewWeight = 0.2,
                     CartWeight = 0.3,
                     PurchaseWeight = 0.3,
-                    RatingWeight = 0.1
+                    RatingWeight = 0.1,
+                    AvgRatingWeight = 0.1
                 };
 
                 await tx.RunAsync(@"
@@ -110,7 +111,8 @@ namespace PRS.Server.Repositories
                         viewWeight: $viewWeight,
                         cartWeight: $cartWeight,
                         purchaseWeight: $purchaseWeight,
-                        ratingWeight: $ratingWeight
+                        ratingWeight: $ratingWeight,
+                        avgRatingWeight: $avgRatingWeight
                     })
                 ", new
                 {
@@ -123,7 +125,8 @@ namespace PRS.Server.Repositories
                     viewWeight = defaultSettings.ViewWeight,
                     cartWeight = defaultSettings.CartWeight,
                     purchaseWeight = defaultSettings.PurchaseWeight,
-                    ratingWeight = defaultSettings.RatingWeight
+                    ratingWeight = defaultSettings.RatingWeight,
+                    avgRatingWeight = defaultSettings.AvgRatingWeight
                 });
 
                 await tx.CommitAsync();

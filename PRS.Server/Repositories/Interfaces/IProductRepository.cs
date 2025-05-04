@@ -5,7 +5,7 @@ namespace PRS.Server.Repositories.Interfaces
 {
     public interface IProductRepository
     {
-        Task<Product?> GetByIdAsync(Guid itemId, string userId);
+        Task<Product?> GetByIdAsync(Guid itemId, string? userId);
         Task<List<Product>> SearchAsync(ProductSearchRequest request, string? userId);
         Task CreateAsync(Product product);
         Task UpdateAsync(Product product);
