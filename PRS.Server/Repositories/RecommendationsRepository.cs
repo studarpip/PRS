@@ -86,7 +86,7 @@ namespace PRS.Server.Repositories
                     WITH u, p1,
                          interactionWeight,
                          secondsAgo,
-                         (interactionWeight * (1.0 / (1.0 + secondsAgo))) AS recencyWeight
+                         (interactionWeight * (1.0 / (1.0 + log(1 + secondsAgo)))) AS recencyWeight
                     WITH u, collect(p1) AS userProducts, collect(recencyWeight) AS weights
                     WITH u,
                          reduce(total = 0.0, i IN range(0, size(userProducts)-1) |
@@ -114,7 +114,7 @@ namespace PRS.Server.Repositories
                        ELSE 0.1
                      END AS interactionWeight
                 WITH u, p1, avgUserPrice,
-                     (interactionWeight * (1.0 / (1.0 + secondsAgo))) AS recencyWeight
+                     (interactionWeight * (1.0 / (1.0 + log(1 + secondsAgo)))) AS recencyWeight
 
                 MATCH (p1)-[:IN_CATEGORY]->(c:Category)<-[:IN_CATEGORY]-(p2:Product)
                 WHERE NOT (u)-[{exclusionTypes}]->(p2)
@@ -202,7 +202,7 @@ namespace PRS.Server.Repositories
                      duration.inSeconds(r2.timestamp, datetime()).seconds AS s2
 
                 WITH u, other,
-                     SUM((w1 / (1 + s1)) * (w2 / (1 + s2))) AS similarityScore
+                     SUM((w1 / (1 + log(1 + s1))) * (w2 / (1 + log(1 + s2)))) AS similarityScore
                 WHERE similarityScore > 0.001
 
                 MATCH (other)-[r3{interactionTypes}]->(rec:Product)
@@ -221,7 +221,7 @@ namespace PRS.Server.Repositories
                      END AS rw,
                      duration.inSeconds(r3.timestamp, datetime()).seconds AS s3
 
-                WITH rec, SUM(similarityScore * (rw / (1 + s3))) AS totalScore
+                WITH rec, SUM(similarityScore * (rw / (1 + log(1 + s3)))) AS totalScore
                 RETURN rec.id AS id
                 ORDER BY totalScore DESC
                 LIMIT 15
