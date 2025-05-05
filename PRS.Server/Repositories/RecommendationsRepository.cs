@@ -389,13 +389,7 @@ namespace PRS.Server.Repositories
                 _ => ":BOUGHT|IN_CART|RATED|VIEWED|BROWSED"
             };
 
-            var exclusionTypes = context switch
-            {
-                "cart" => ":BOUGHT|IN_CART",
-                "product" => ":BOUGHT|IN_CART|RATED",
-                "home" => ":BOUGHT|IN_CART",
-                _ => ":BOUGHT|IN_CART"
-            };
+            var exclusionTypes = ":BOUGHT|IN_CART";
 
             return (interactionTypes, exclusionTypes);
         }
