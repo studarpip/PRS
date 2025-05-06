@@ -82,7 +82,7 @@ namespace PRS.Server.Repositories
             var filters = new List<string>();
 
             if (!string.IsNullOrWhiteSpace(request.Input))
-                filters.Add("lower(p.name) CONTAINS lower($input) OR lower(p.description) CONTAINS lower($input)");
+                filters.Add("(lower(p.name) CONTAINS lower($input) OR lower(p.description) CONTAINS lower($input))");
 
             if (request.PriceFrom.HasValue)
                 filters.Add("p.price >= $priceFrom");
@@ -96,12 +96,9 @@ namespace PRS.Server.Repositories
             if (request.RatingTo.HasValue)
                 filters.Add("p.averageRating <= $ratingTo");
 
-            var hasCategoryFilter = request.Categories != null && request.Categories.Any();
-
-            if (hasCategoryFilter)
-                filters.Add("ALL(cat IN $categories WHERE cat IN categories)");
-
             filters.Add("(p.isDeleted IS NULL OR p.isDeleted = false)");
+
+            var hasCategoryFilter = request.Categories != null && request.Categories.Any();
 
             string? baseOrderBy = request.OrderBy switch
             {
@@ -116,39 +113,32 @@ namespace PRS.Server.Repositories
 
             string query;
 
-            if (hasCategoryFilter && baseOrderBy == null)
+            if (hasCategoryFilter)
             {
                 query = $@"
-                    MATCH (p:Product)
-                    OPTIONAL MATCH (p)-[:IN_CATEGORY]->(c:Category)
-                    OPTIONAL MATCH (:User)-[r:RATED]->(p)
-                    WITH p, collect(c.name) AS categories, count(DISTINCT r) AS ratingCount
-                    WITH p, categories, ratingCount,
-                         size([cat IN $categories WHERE cat IN categories]) AS matchedCategoryCount,
-                         size(categories) AS categoryCount,
-                         CASE 
-                             WHEN size([cat IN $categories WHERE cat IN categories]) = size($categories)
-                              AND size(categories) = size($categories)
-                             THEN true ELSE false 
-                         END AS exactCategoryMatch
-                    WHERE {string.Join(" AND ", filters)}
-                    ORDER BY exactCategoryMatch DESC, matchedCategoryCount DESC
-                    RETURN p, categories, ratingCount
-                    SKIP $skip LIMIT $limit
-                ";
+            MATCH (p:Product)-[:IN_CATEGORY]->(c:Category)
+            WITH p, collect(DISTINCT c.name) AS categories
+            WHERE ALL(cat IN $categories WHERE cat IN categories)
+              AND {string.Join(" AND ", filters)}
+            OPTIONAL MATCH (:User)-[r:RATED]->(p)
+            WITH p, categories, count(DISTINCT r) AS ratingCount
+            ORDER BY {baseOrderBy ?? "id(p) DESC"}
+            RETURN p, categories, ratingCount
+            SKIP $skip LIMIT $limit
+        ";
             }
             else
             {
                 query = $@"
-                    MATCH (p:Product)
-                    OPTIONAL MATCH (p)-[:IN_CATEGORY]->(c:Category)
-                    OPTIONAL MATCH (:User)-[r:RATED]->(p)
-                    WITH p, collect(c.name) AS categories, count(DISTINCT r) AS ratingCount
-                    WHERE {string.Join(" AND ", filters)}
-                    ORDER BY {baseOrderBy ?? "id(p) DESC"}
-                    RETURN p, categories, ratingCount
-                    SKIP $skip LIMIT $limit
-                ";
+            MATCH (p:Product)
+            OPTIONAL MATCH (p)-[:IN_CATEGORY]->(c:Category)
+            OPTIONAL MATCH (:User)-[r:RATED]->(p)
+            WITH p, collect(DISTINCT c.name) AS categories, count(DISTINCT r) AS ratingCount
+            WHERE {string.Join(" AND ", filters)}
+            ORDER BY {baseOrderBy ?? "id(p) DESC"}
+            RETURN p, categories, ratingCount
+            SKIP $skip LIMIT $limit
+        ";
             }
 
             var result = await session.RunAsync(query, new
@@ -159,7 +149,7 @@ namespace PRS.Server.Repositories
                 ratingFrom = request.RatingFrom,
                 ratingTo = request.RatingTo,
                 categories = hasCategoryFilter
-                    ? request.Categories!.Select(c => c.ToString()).ToList()
+                    ? request.Categories!.Select(c => Enum.GetName(typeof(Category), c)!).ToList()
                     : new List<string>(),
                 skip = (request.Page - 1) * request.PageSize,
                 limit = request.PageSize
@@ -200,9 +190,9 @@ namespace PRS.Server.Repositories
                     foreach (var product in browsedProducts)
                     {
                         await tx.RunAsync(@"
-                            MATCH (u:User { id: $userId }), (p:Product { id: $productId })
-                            CREATE (u)-[:BROWSED { timestamp: datetime() }]->(p)
-                        ", new
+                    MATCH (u:User { id: $userId }), (p:Product { id: $productId })
+                    CREATE (u)-[:BROWSED { timestamp: datetime() }]->(p)
+                ", new
                         {
                             userId,
                             productId = product.Id.ToString()
