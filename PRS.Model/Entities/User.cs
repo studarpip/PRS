@@ -8,6 +8,6 @@ namespace PRS.Model.Entities
         public required string EmailHash { get; set; }
         public Gender Gender { get; set; } = Gender.Unknown;
         public Country Country { get; set; } = Country.Unknown;
-        public DateOnly? DateOfBirth { get; set; }
+        public DateOnly DateOfBirth { get; set; }
     }
 }

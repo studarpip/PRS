@@ -1,6 +1,7 @@
 ﻿using Neo4j.Driver;
 using PRS.Model.Entities;
 using PRS.Server.Helpers;
+using PRS.Server.Helpers.Interfaces;
 using PRS.Server.Repositories.Interfaces;
 
 namespace PRS.Server.Repositories
@@ -8,10 +9,12 @@ namespace PRS.Server.Repositories
     public class RegistrationRepository : IRegistrationRepository
     {
         private readonly IDriver _driver;
+        private readonly IEncryptionHelper _encryptionHelper;
 
-        public RegistrationRepository(IDriver driver)
+        public RegistrationRepository(IDriver driver, IEncryptionHelper encryptionHelper)
         {
             _driver = driver;
+            _encryptionHelper = encryptionHelper;
         }
 
         public async Task<bool> UsernameExistsAsync(string username)
@@ -48,7 +51,8 @@ namespace PRS.Server.Repositories
                         email: $email,
                         emailhash: $emailhash,
                         password: $password,
-                        role: $role
+                        role: $role,
+                        dateOfBirht: $dateOfBirth
                     })
                 ", new
                 {
@@ -57,8 +61,9 @@ namespace PRS.Server.Repositories
                     email = user.Email,
                     emailhash = user.EmailHash,
                     password = user.Password,
-                    role = user.Role.ToString()
-                });
+                    role = user.Role.ToString(),
+                    dateOfBirth = _encryptionHelper.Encrypt(user.DateOfBirth.ToString())
+                }); ;
 
                 if (!user.Country.ShouldSkipRelationship())
                 {
