@@ -116,29 +116,29 @@ namespace PRS.Server.Repositories
             if (hasCategoryFilter)
             {
                 query = $@"
-            MATCH (p:Product)-[:IN_CATEGORY]->(c:Category)
-            WITH p, collect(DISTINCT c.name) AS categories
-            WHERE ALL(cat IN $categories WHERE cat IN categories)
-              AND {string.Join(" AND ", filters)}
-            OPTIONAL MATCH (:User)-[r:RATED]->(p)
-            WITH p, categories, count(DISTINCT r) AS ratingCount
-            ORDER BY {baseOrderBy ?? "id(p) DESC"}
-            RETURN p, categories, ratingCount
-            SKIP $skip LIMIT $limit
-        ";
+                    MATCH (p:Product)-[:IN_CATEGORY]->(c:Category)
+                    WITH p, collect(DISTINCT c.name) AS categories
+                    WHERE ALL(cat IN $categories WHERE cat IN categories)
+                      AND {string.Join(" AND ", filters)}
+                    OPTIONAL MATCH (:User)-[r:RATED]->(p)
+                    WITH p, categories, count(DISTINCT r) AS ratingCount
+                    ORDER BY {baseOrderBy ?? "id(p) DESC"}
+                    RETURN p, categories, ratingCount
+                    SKIP $skip LIMIT $limit
+                ";
             }
             else
             {
                 query = $@"
-            MATCH (p:Product)
-            OPTIONAL MATCH (p)-[:IN_CATEGORY]->(c:Category)
-            OPTIONAL MATCH (:User)-[r:RATED]->(p)
-            WITH p, collect(DISTINCT c.name) AS categories, count(DISTINCT r) AS ratingCount
-            WHERE {string.Join(" AND ", filters)}
-            ORDER BY {baseOrderBy ?? "id(p) DESC"}
-            RETURN p, categories, ratingCount
-            SKIP $skip LIMIT $limit
-        ";
+                    MATCH (p:Product)
+                    OPTIONAL MATCH (p)-[:IN_CATEGORY]->(c:Category)
+                    OPTIONAL MATCH (:User)-[r:RATED]->(p)
+                    WITH p, collect(DISTINCT c.name) AS categories, count(DISTINCT r) AS ratingCount
+                    WHERE {string.Join(" AND ", filters)}
+                    ORDER BY {baseOrderBy ?? "id(p) DESC"}
+                    RETURN p, categories, ratingCount
+                    SKIP $skip LIMIT $limit
+                ";
             }
 
             var result = await session.RunAsync(query, new
@@ -190,9 +190,9 @@ namespace PRS.Server.Repositories
                     foreach (var product in browsedProducts)
                     {
                         await tx.RunAsync(@"
-                    MATCH (u:User { id: $userId }), (p:Product { id: $productId })
-                    CREATE (u)-[:BROWSED { timestamp: datetime() }]->(p)
-                ", new
+                            MATCH (u:User { id: $userId }), (p:Product { id: $productId })
+                            CREATE (u)-[:BROWSED { timestamp: datetime() }]->(p)
+                        ", new
                         {
                             userId,
                             productId = product.Id.ToString()
