@@ -12,6 +12,19 @@ function Recommendations({ context }) {
     fetchRecommendations();
   }, [context]);
 
+  const getRecommendationTitle = (ctx) => {
+    switch (ctx) {
+      case "home":
+        return "Top Picks Just for You";
+      case "cart":
+        return "You Might Also Like";
+      case "product":
+        return "Similar Products You May Like";
+      default:
+        return "Recommended for You";
+    }
+  };
+
   const fetchRecommendations = () => {
     setLoading(true);
 
@@ -36,7 +49,7 @@ function Recommendations({ context }) {
 
   return (
     <div className="recom-page">
-      <h2 className="recom-title">Recommended for you</h2>
+      <h2 className="recom-title">{getRecommendationTitle(context)}</h2>
       <div className="recom-product-list">
         {recommendations.map(product => (
           <div

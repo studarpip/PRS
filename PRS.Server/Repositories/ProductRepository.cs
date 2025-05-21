@@ -24,9 +24,9 @@ namespace PRS.Server.Repositories
                 MATCH (p:Product { id: $id })
                 WHERE coalesce(p.isDeleted, false) = false
                 OPTIONAL MATCH (p)-[:IN_CATEGORY]->(c:Category)
+                WITH p, collect(DISTINCT c.name) AS categories
                 OPTIONAL MATCH (:User)-[r:RATED]->(p)
-                WITH p, collect(c.name) AS categories, count(DISTINCT r) AS ratingCount
-                RETURN p, categories, ratingCount
+                RETURN p, categories, count(DISTINCT r) AS ratingCount
             ", new { id = itemId.ToString() });
 
 

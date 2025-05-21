@@ -7,6 +7,31 @@ import { useNotification } from "../contexts/NotificationContext";
 import Recommendations from "../components/Recommendations";
 import "../css/Product.css";
 
+const CategoryEnum = {
+  0: "Electronics",
+  1: "Gaming",
+  2: "Computers",
+  3: "Books",
+  4: "Fiction",
+  5: "Sport",
+  6: "Basketball",
+  7: "Clothing",
+  8: "Shoes",
+  9: "Music",
+  10: "Instruments",
+  11: "Home",
+  12: "Kitchen",
+  13: "Health",
+  14: "Beauty",
+  15: "Toys",
+  16: "Pets",
+  17: "Office",
+  18: "Accessories",
+  19: "Photography",
+  20: "Outdoors"
+};
+
+
 function Product() {
   const { notify } = useNotification();
   const { id } = useParams();
@@ -145,6 +170,20 @@ function Product() {
           <div className="product-description">
             {product.description || "No description available."}
           </div>
+          <div className="product-categories">
+            <strong>Categories: </strong>
+            {product.categories && product.categories.length > 0 ? (
+              product.categories.map((cat, index) => (
+                <span key={index}>
+                  {CategoryEnum[cat]}
+                  {index !== product.categories.length - 1 && ', '}
+                </span>
+              ))
+            ) : (
+              <span>No categories</span>
+            )}
+          </div>
+
         </div>
 
         <div className="product-side-card">
