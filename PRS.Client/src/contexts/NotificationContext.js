@@ -6,12 +6,12 @@ export function NotificationProvider({ children }) {
   const [notifications, setNotifications] = useState([]);
 
   const notify = (message, type = "success") => {
-    const id = Date.now() + Math.random(); // simple unique id
+    const id = Date.now() + Math.random();
     setNotifications(prev => [...prev, { id, message, type }]);
 
     setTimeout(() => {
       setNotifications(prev => prev.filter(n => n.id !== id));
-    }, 3000); // Remove after 3s
+    }, 3000);
   };
 
   return (
