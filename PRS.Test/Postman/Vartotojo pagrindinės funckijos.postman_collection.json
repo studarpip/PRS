@@ -1,0 +1,745 @@
+{
+	"info": {
+		"_postman_id": "e7d52bb3-e940-4c4a-b5fe-699efcf719b7",
+		"name": "Vartotojo pagrindinės funckijos",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24864492"
+	},
+	"item": [
+		{
+			"name": "Registracija",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const randomId = Math.floor(Math.random() * 100000);\r",
+							"const username = `user_${randomId}`;\r",
+							"const email = `${username}@example.com`;\r",
+							"\r",
+							"pm.environment.set(\"randomUsername\", username);\r",
+							"pm.environment.set(\"randomEmail\", email);\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200 or 201\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"username\": \"{{randomUsername}}\",\r\n  \"email\": \"{{randomEmail}}\",\r\n  \"password\": \"Test@1234\",\r\n  \"country\": 1,\r\n  \"gender\": 1,\r\n  \"dateOfBirth\": \"2000-01-01\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:7238/api/register",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7238",
+					"path": [
+						"api",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Login returns token or sets session\", function () {\r",
+							"    const cookies = pm.cookies;\r",
+							"    pm.expect(Object.keys(cookies).length).to.be.above(0);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"username\": \"{{randomUsername}}\",\r\n  \"password\": \"Test@1234\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:7238/auth/login",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7238",
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Paieška",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const jsonData = pm.response.json();\r",
+							"const expectedCategory = 6;\r",
+							"const keyword = \"game\";\r",
+							"\r",
+							"const products = jsonData.data || [];\r",
+							"\r",
+							"products.forEach((product, i) => {\r",
+							"    const name = (product.name || \"\").toLowerCase();\r",
+							"    const desc = (product.description || \"\").toLowerCase();\r",
+							"    const categories = product.categories || [];\r",
+							"\r",
+							"    const hasKeyword = name.includes(keyword) || desc.includes(keyword);\r",
+							"    const hasCategory = categories.includes(expectedCategory);\r",
+							"\r",
+							"    pm.test(`Product #${i + 1} - contains keyword \"game\"`, function () {\r",
+							"        pm.expect(hasKeyword).to.be.true;\r",
+							"    });\r",
+							"\r",
+							"    pm.test(`Product #${i + 1} - has category 6 (Basketball)`, function () {\r",
+							"        pm.expect(hasCategory).to.be.true;\r",
+							"    });\r",
+							"\r",
+							"    pm.environment.set(\"productId\", jsonData.data[0].id);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"input\": \"Game\",\r\n  \"categories\": [6],\r\n  \"page\": 1,\r\n  \"pageSize\": 10\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:7238/api/products/search",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7238",
+					"path": [
+						"api",
+						"products",
+						"search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Prekės detalės",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const res = pm.response.json();\r",
+							"const product = res.data;\r",
+							"\r",
+							"pm.test(\"Response is successful\", function () {\r",
+							"    pm.expect(res.success).to.be.true;\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Product has name\", function () {\r",
+							"    pm.expect(product.name).to.be.a(\"string\").and.not.empty;\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Product has price\", function () {\r",
+							"    pm.expect(product.price).to.be.a(\"number\");\r",
+							"});\r",
+							"\r",
+							"[\"description\", \"image\", \"rating\", \"ratingCount\", \"categories\"].forEach(field => {\r",
+							"    pm.test(`Product has field '${field}' (nullable ok)`, function () {\r",
+							"        pm.expect(product).to.have.property(field);\r",
+							"    });\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:7238/api/products/{{productId}}",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7238",
+					"path": [
+						"api",
+						"products",
+						"{{productId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Pridėti prekę į krepšelį",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const res = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Cart update request is successful\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 204]);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Cart update response structure is correct\", function () {\r",
+							"    pm.expect(res).to.have.property(\"success\");\r",
+							"    pm.expect(res.success).to.be.true;\r",
+							"    pm.expect(res).to.have.property(\"message\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"productId\": \"{{productId}}\",\r\n  \"count\": 1\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:7238/api/cart",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7238",
+					"path": [
+						"api",
+						"cart"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Krepšelio turinys",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const res = pm.response.json();\r",
+							"const productId = pm.environment.get(\"productId\");\r",
+							"\r",
+							"pm.test(\"Cart request is successful\", function () {\r",
+							"    pm.expect(pm.response.code).to.eql(200);\r",
+							"    pm.expect(res.success).to.be.true;\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Cart contains exactly one item\", function () {\r",
+							"    pm.expect(res.data.length).to.eql(1);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Cart item is correct\", function () {\r",
+							"    const item = res.data.find(i => i.productId === productId);\r",
+							"    pm.expect(item).to.not.be.undefined;\r",
+							"    pm.expect(item.count).to.eql(1);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:7238/api/cart",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7238",
+					"path": [
+						"api",
+						"cart"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Krepšelio redagavimas pridėjimas",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Cart updated to 4\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 204]);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"productId\": \"{{productId}}\",\r\n  \"count\": 4\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:7238/api/cart",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7238",
+					"path": [
+						"api",
+						"cart"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Krepšelis po pridėjimo (redagavimo)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const res = pm.response.json();\r",
+							"const productId = pm.environment.get(\"productId\");\r",
+							"\r",
+							"const item = res.data.find(i => i.productId === productId);\r",
+							"\r",
+							"pm.test(\"Cart item updated to count 4\", function () {\r",
+							"    pm.expect(item).to.not.be.undefined;\r",
+							"    pm.expect(item.count).to.eql(4);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:7238/api/cart",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7238",
+					"path": [
+						"api",
+						"cart"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Krepšelio redagavimo šalinimas",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Cart updated to 3\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 204]);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"productId\": \"{{productId}}\",\r\n  \"count\": 3\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:7238/api/cart",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7238",
+					"path": [
+						"api",
+						"cart"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Krepšelis po šalinimo (redagavimo)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const res = pm.response.json();\r",
+							"const productId = pm.environment.get(\"productId\");\r",
+							"\r",
+							"const item = res.data.find(i => i.productId === productId);\r",
+							"\r",
+							"pm.test(\"Cart item updated to count 3\", function () {\r",
+							"    pm.expect(item).to.not.be.undefined;\r",
+							"    pm.expect(item.count).to.eql(3);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:7238/api/cart",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7238",
+					"path": [
+						"api",
+						"cart"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Pirkimas",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Purchase completed successfully\", function () {\r",
+							"    pm.expect(pm.response.code).to.eql(200);\r",
+							"\r",
+							"    const res = pm.response.json();\r",
+							"    pm.expect(res).to.have.property(\"success\", true);\r",
+							"    pm.expect(res).to.have.property(\"message\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:7238/api/cart/buy",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7238",
+					"path": [
+						"api",
+						"cart",
+						"buy"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ar galima vertinti?",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const res = pm.response.json();\r",
+							"\r",
+							"pm.test(\"CanRate request is successful\", function () {\r",
+							"    pm.expect(pm.response.code).to.eql(200);\r",
+							"    pm.expect(res.success).to.be.true;\r",
+							"});\r",
+							"\r",
+							"pm.test(\"User is allowed to rate the product\", function () {\r",
+							"    pm.expect(res.data).to.have.property(\"canRate\", true);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:7238/api/rating/canRate/{{productId}}",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7238",
+					"path": [
+						"api",
+						"rating",
+						"canRate",
+						"{{productId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Vertinimas",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const res = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Rating submitted successfully\", function () {\r",
+							"    pm.expect(pm.response.code).to.eql(200);\r",
+							"    pm.expect(res.success).to.be.true;\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"productId\": \"{{productId}}\",\r\n  \"rating\": 5\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:7238/api/rating",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7238",
+					"path": [
+						"api",
+						"rating"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Gauname nustatymus",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const res = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Settings retrieved successfully\", function () {\r",
+							"    pm.expect(pm.response.code).to.eql(200);\r",
+							"    pm.expect(res.success).to.be.true;\r",
+							"    pm.expect(res.data).to.have.all.keys(\r",
+							"        \"useContent\",\r",
+							"        \"useCollaborative\",\r",
+							"        \"categoryWeight\",\r",
+							"        \"priceWeight\",\r",
+							"        \"avgRatingWeight\",\r",
+							"        \"browseWeight\",\r",
+							"        \"viewWeight\",\r",
+							"        \"cartWeight\",\r",
+							"        \"purchaseWeight\",\r",
+							"        \"ratingWeight\"\r",
+							"    );\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:7238/api/settings",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7238",
+					"path": [
+						"api",
+						"settings"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Nustatymų redagavimas",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const res = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Settings updated successfully\", function () {\r",
+							"    pm.expect(pm.response.code).to.eql(200);\r",
+							"    pm.expect(res.success).to.be.true;\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"useContent\": true,\r\n  \"useCollaborative\": true,\r\n  \"categoryWeight\": 1,\r\n  \"priceWeight\": 1,\r\n  \"avgRatingWeight\": 1,\r\n  \"browseWeight\": 1,\r\n  \"viewWeight\": 1,\r\n  \"cartWeight\": 1,\r\n  \"purchaseWeight\": 1,\r\n  \"ratingWeight\": 1\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:7238/api/settings",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7238",
+					"path": [
+						"api",
+						"settings"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

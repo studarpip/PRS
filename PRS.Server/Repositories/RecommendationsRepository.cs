@@ -18,8 +18,6 @@ namespace PRS.Server.Repositories
         public async Task<List<Product>> GetRecommendationsAsync(string userId, string context, RecommendationSettings settings)
         {
             const int maxRecommendations = 15;
-            var seen = new HashSet<Guid>();
-            var final = new List<Product>();
 
             var contentResults = settings.UseContent
                 ? await GetContentBasedRecommendations(userId, context, settings)
@@ -29,6 +27,7 @@ namespace PRS.Server.Repositories
                 ? await GetCollaborativeRecommendations(userId, context, settings)
                 : new List<Product>();
 
+            var seen = new HashSet<Guid>();
             IEnumerable<Product> PickUnique(IEnumerable<Product> source, int count)
             {
                 return source
@@ -36,18 +35,20 @@ namespace PRS.Server.Repositories
                     .Take(count);
             }
 
+            var final = new List<Product>();
+
             if (settings.UseContent && settings.UseCollaborative)
             {
-                final.AddRange(PickUnique(contentResults, 7));
+                final.AddRange(PickUnique(contentResults, 8));
                 final.AddRange(PickUnique(collaborativeResults, maxRecommendations - final.Count));
             }
             else if (settings.UseContent)
             {
-                final.AddRange(PickUnique(contentResults, 12));
+                final.AddRange(PickUnique(contentResults, maxRecommendations));
             }
             else if (settings.UseCollaborative)
             {
-                final.AddRange(PickUnique(collaborativeResults, 12));
+                final.AddRange(PickUnique(collaborativeResults, maxRecommendations));
             }
 
             if (final.Count < maxRecommendations)
