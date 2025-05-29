@@ -2,11 +2,6 @@
 using Neo4j.Driver;
 using PRS.Server.Helpers.Interfaces;
 using PRS.Server.Migrations.Seeders;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Xunit;
 
 public class AdminSeederTests
 {
